@@ -37,7 +37,8 @@ val bc = -c / b
  * вернуть строку вида: «21 год», «32 года», «12 лет».
  */
 fun ageDescription(age: Int): String{
-    if ((5 <= age % 10) && (age % 10 <= 9) || (age % 100 <= 20) && (10<= age % 100)) return "$age лет"
+    if ((5 <= age % 10) && (age % 10 <= 9) || (age % 100 <= 20) && (10<= age % 100) ||
+            ((age % 100) % 10 == 0)) return "$age лет"
     if ((22 <= age % 100) && (age % 100 <= 24)) return "$age года"
     if ((2<=age % 10)&&(age % 10<=4)) return "$age года"
     if ((age % 100==1) || (age % 100==21)) return "$age год"
@@ -120,20 +121,20 @@ fun ageDescription(age: Int): String{
      * Если пересечения нет, вернуть -1.
      */
     fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int {
-        if ((a < c) && (b < d)) {
+        if ((a <= c) && (b <= d)) {
             if (b - c < 0) return -1 else
                 return b - c
         }
-        if ((a > c) && (b > d)){
+        if ((a >= c) && (b >= d)){
             if (d - a < 0) return -1 else
                 return d - a
 
         }
-        if ((a < c) && (b > d)){
+        if ((a <= c) && (b >= d)){
             if (d - c < 0) return -1 else
                 return d - c
         }
-        if ((a > c) && (b < d)){
+        if ((a >= c) && (b <= d)){
             if (b - a < 0) return -1 else
                 return b - a
         }
