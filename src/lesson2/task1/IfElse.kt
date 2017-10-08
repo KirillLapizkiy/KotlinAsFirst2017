@@ -38,10 +38,10 @@ val bc = -c / b
  */
 fun ageDescription(age: Int): String{
     if ((5 <= age % 10) && (age % 10 <= 9) || (age % 100 <= 20) && (10<= age % 100) ||
-            ((age % 100) % 10 == 0)) return "$age лет"
+            (age % 10 == 0)) return "$age лет"
     if ((22 <= age % 100) && (age % 100 <= 24)) return "$age года"
     if ((2<=age % 10)&&(age % 10<=4)) return "$age года"
-    if ((age % 100==1) || (age % 100==21)) return "$age год"
+    if ((age % 10==1) || (age % 100==21)) return "$age год"
     return ""
     }
     /**
