@@ -98,11 +98,10 @@ fun fib(n: Int): Int {
  * минимальное число k, которое делится и на m и на n без остатка
  */
 fun lcm(m: Int, n: Int): Int {
-    var p = 0
     for (i in 1..n * m) {
         if ((i % n == 0) && (i % m == 0)) return i
     }
-    return p
+    return 0
 }
 
 /**
@@ -116,7 +115,6 @@ fun minDivisor(n: Int): Int {
         if (n % minD == 0) return minD
         ++minD
     }
-    return minD
 }
 
 /**
@@ -130,7 +128,6 @@ fun maxDivisor(n: Int): Int {
         if (n % maxD == 0) return maxD
         --maxD
     }
-    return maxD
 }
 
 /**
@@ -229,7 +226,6 @@ fun revert(n: Int): Int {
 
     k = 0
     var s = n
-    s = n
     while (i > 0) {
         k = k + (s % 10) * count
         s = s / 10
@@ -273,11 +269,10 @@ fun isPalindrome(n: Int): Boolean {
  */
 fun hasDifferentDigits(n: Int): Boolean {
     if (n < 10) return false
-    var k = 0
     var count = 1
     val prev = n % 10
     while (n / count != 0) {
-        k = (n / count) % 10
+        val k = (n / count) % 10
         if (k != prev) return true
         count *= 10
     }
@@ -292,17 +287,13 @@ fun hasDifferentDigits(n: Int): Boolean {
  * Например, 2-я цифра равна 4, 7-я 5, 12-я 6.
  */
 fun squareSequenceDigit(n: Int): Int {
-    var total = 0
     var k = 1
-    var count = 10
     var numberOfDec = 1
-    var cloneTotal = 1
-    var i = 1
     while (true) {
-        total = k * k
-        cloneTotal = total
-        count = 10
-        i = 1
+        val total = k * k
+        var cloneTotal = total
+        var count = 10
+        var i = 1
         while (total / count != 0) {
             count *= 10
             ++i
@@ -333,17 +324,13 @@ fun squareSequenceDigit(n: Int): Int {
  * Например, 2-я цифра равна 1, 9-я 2, 14-я 5.
  */
 fun fibSequenceDigit(n: Int): Int {
-    var total = 0
     var k = 1
-    var count = 10
     var numberOfDec = 1
-    var cloneTotal = 1
-    var i = 1
     while (true) {
-        total = fib(k)
-        cloneTotal = total
-        count = 10
-        i = 1
+        val total = fib(k)
+        var cloneTotal = total
+        var count = 10
+        var i = 1
         while (total / count != 0) {
             count *= 10
             ++i
