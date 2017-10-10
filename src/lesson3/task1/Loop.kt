@@ -1,7 +1,10 @@
 @file:Suppress("UNUSED_PARAMETER")
+
 package lesson3.task1
+
 import lesson1.task1.numberRevert
 import java.lang.Math.*
+
 /**
  * Пример
  *
@@ -35,7 +38,7 @@ fun isPrime(n: Int): Boolean {
  */
 fun isPerfect(n: Int): Boolean {
     var sum = 1
-    for (m in 2..n/2) {
+    for (m in 2..n / 2) {
         if (n % m > 0) continue
         sum += m
         if (sum > n) break
@@ -73,10 +76,18 @@ fun digitNumber(n: Int): Int = when {
  * Ряд Фибоначчи определён следующим образом: fib(1) = 1, fib(2) = 1, fib(n+2) = fib(n) + fib(n+1)
  */
 fun fib(n: Int): Int {
-    if (n == 1) return 1
-    if (n == 2) return 1
-    return fib(n-2) + fib(n-1)
-
+    var f1 = 1
+    var f2 = 1
+    var f3 = 1
+    var k = 2
+    if ((n == 1)||(n == 2)) return 1
+    while(k < n){
+        f3 = f1 + f2
+        f1 = f2
+        f2 = f3
+        ++k
+    }
+    return f3
 }
 
 
@@ -88,7 +99,7 @@ fun fib(n: Int): Int {
  */
 fun lcm(m: Int, n: Int): Int {
     var p = 0
-    for(i in 1..n*m){
+    for (i in 1..n * m) {
         if ((i % n == 0) && (i % m == 0)) return i
     }
     return p
@@ -101,7 +112,7 @@ fun lcm(m: Int, n: Int): Int {
  */
 fun minDivisor(n: Int): Int {
     var minD = 2
-    while(true){
+    while (true) {
         if (n % minD == 0) return minD
         ++minD
     }
@@ -121,6 +132,7 @@ fun maxDivisor(n: Int): Int {
     }
     return maxD
 }
+
 /**
  * Простая
  *
@@ -130,12 +142,13 @@ fun maxDivisor(n: Int): Int {
  */
 fun isCoPrime(m: Int, n: Int): Boolean {
     var k = 2
-    while(k <= min(m,n)){
-        if((m % k == 0)&&(n % k == 0)) return false
+    while (k <= min(m, n)) {
+        if ((m % k == 0) && (n % k == 0)) return false
         ++k
     }
     return true
 }
+
 /**
  * Простая
  *
@@ -146,8 +159,8 @@ fun isCoPrime(m: Int, n: Int): Boolean {
 
 fun squareBetweenExists(m: Int, n: Int): Boolean {
     var k = 0.0
-    while (k*k <= n){
-        if((m <= pow(k,2.0)) && (pow(k,2.0) <= n)) return true
+    while (k * k <= n) {
+        if ((m <= pow(k, 2.0)) && (pow(k, 2.0) <= n)) return true
         ++k
     }
     return false
@@ -161,19 +174,19 @@ fun squareBetweenExists(m: Int, n: Int): Boolean {
  * Нужную точность считать достигнутой, если очередной член ряда меньше eps по модулю
  */
 fun sin(x: Double, eps: Double): Double {
-    //мучался целый день, никак не могу найти ошибку, хотя остальное сделал быстро
-    var k = x
-    var l = x
-    var i = 2.0
-    while(abs(k) > eps){
-        k = -k * pow(x, 2.0) /(i * (i + 1.0))
+    var normal = x
+    if (x >= 2 * PI) normal = x % (2 * PI)
+    var k = normal
+    var l = normal
+    var i = 3.0
+    while (abs(k) >= eps) {
+        k = (-k * normal * normal) / (i * (i + 1.0))
         l += k
         i += 2.0
     }
     //if (ceil(l) <= -2.0) return ceil(l) + 2.0 else if (ceil(l) >= 2.0) return ceil(l) - 2.0 else
-    return ceil(l)
+    return  l
 }
-
 
 /**
  * Средняя
@@ -183,16 +196,17 @@ fun sin(x: Double, eps: Double): Double {
  * Нужную точность считать достигнутой, если очередной член ряда меньше eps по модулю
  */
 fun cos(x: Double, eps: Double): Double {
-    //мучался целый день, никак не могу найти ошибку, хотя остальное сделал быстро
-    var k = x
+    var normal = x
+    if (x >= 2 * PI) normal = x % (2 * PI)
+    var k = 1.0
     var l = 1.0
     var i = 1.0
-    while(abs(k) > eps){
-        k = (-k * x * x) / (i * (i + 1.0))
+    while (abs(k) > eps) {
+        k = (-k * normal * normal) / (i * (i + 1.0))
         l += k
         i += 2.0
     }
-    return ceil(l)
+    return l
 }
 
 /**
@@ -205,19 +219,19 @@ fun revert(n: Int): Int {
     var k = n
     var i = 0
     var count = 0
-    while(k > 0){
+    while (k > 0) {
         k = k / 10
         ++i
         ++count
     }
 
-    count = (pow(10.0, count.toDouble()-1)).toInt()
+    count = (pow(10.0, count.toDouble() - 1)).toInt()
 
     k = 0
     var s = n
     s = n
-    while(i > 0){
-        k = k + (s % 10)*count
+    while (i > 0) {
+        k = k + (s % 10) * count
         s = s / 10
         count = count / 10
         --i
@@ -235,14 +249,14 @@ fun revert(n: Int): Int {
 fun isPalindrome(n: Int): Boolean {
     var k = n
     var count = 0
-    while(k > 0){
+    while (k > 0) {
         k = k / 10
         ++count
     }
-    var t = pow(10.0, (count-1).toDouble()).toInt()
+    var t = pow(10.0, (count - 1).toDouble()).toInt()
     k = 10
     var s = n
-    for(i in 1..(count / 2 + count % 2)){
+    for (i in 1..(count / 2 + count % 2)) {
         if (s / t != (n % k) * 10 / k) return false
         k = k * 10
         s = s % t
@@ -258,11 +272,11 @@ fun isPalindrome(n: Int): Boolean {
  * Например, 54 и 323 состоят из разных цифр, а 111 и 0 из одинаковых.
  */
 fun hasDifferentDigits(n: Int): Boolean {
-    if(n < 10) return false
+    if (n < 10) return false
     var k = 0
     var count = 1
     val prev = n % 10
-    while(n / count != 0){
+    while (n / count != 0) {
         k = (n / count) % 10
         if (k != prev) return true
         count *= 10
@@ -284,7 +298,7 @@ fun squareSequenceDigit(n: Int): Int {
     var numberOfDec = 1
     var cloneTotal = 1
     var i = 1
-    while(true){
+    while (true) {
         total = k * k
         cloneTotal = total
         count = 10
@@ -294,9 +308,9 @@ fun squareSequenceDigit(n: Int): Int {
             ++i
         }
         count /= 10
-        if (total>=10){
-            while(i!=0){
-                if(numberOfDec == n) return cloneTotal / count
+        if (total >= 10) {
+            while (i != 0) {
+                if (numberOfDec == n) return cloneTotal / count
                 ++numberOfDec
                 cloneTotal %= count
                 count /= 10

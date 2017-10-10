@@ -1,4 +1,5 @@
 @file:Suppress("UNUSED_PARAMETER")
+
 package lesson1.task1
 
 import java.lang.Math.*
@@ -61,7 +62,8 @@ fun seconds(hours: Int, minutes: Int, seconds: Int): Int = hours * 3600 + minute
  * Определить длину того же отрезка в метрах (в данном случае 18.98).
  * 1 сажень = 3 аршина = 48 вершков, 1 вершок = 4.445 см.
  */
-fun lengthInMeters(sagenes: Int, arshins: Int, vershoks: Int): Double = (sagenes * 213.36 + arshins * 71.12 + vershoks * 4.445)/100.0
+fun lengthInMeters(sagenes: Int, arshins: Int, vershoks: Int):
+        Double = (sagenes * 213.36 + arshins * 71.12 + vershoks * 4.445) / 100.0
 
 /**
  * Тривиальная
@@ -69,7 +71,7 @@ fun lengthInMeters(sagenes: Int, arshins: Int, vershoks: Int): Double = (sagenes
  * Пользователь задает угол в градусах, минутах и секундах (например, 36 градусов 14 минут 35 секунд).
  * Вывести значение того же угла в радианах (например, 0.63256).
  */
-fun angleInRadian(grad: Int, min: Int, sec: Int): Double = (grad + min/60.0 + sec/3600.0)/(180.0/PI)
+fun angleInRadian(grad: Int, min: Int, sec: Int): Double = (grad + min / 60.0 + sec / 3600.0) / (180.0 / PI)
 
 /**
  * Тривиальная
@@ -77,7 +79,7 @@ fun angleInRadian(grad: Int, min: Int, sec: Int): Double = (grad + min/60.0 + se
  * Найти длину отрезка, соединяющего точки на плоскости с координатами (x1, y1) и (x2, y2).
  * Например, расстояние между (3, 0) и (0, 4) равно 5
  */
-fun trackLength(x1: Double, y1: Double, x2: Double, y2: Double): Double = sqrt(sqr(x2 - x1)+sqr(y2-y1))
+fun trackLength(x1: Double, y1: Double, x2: Double, y2: Double): Double = sqrt(sqr(x2 - x1) + sqr(y2 - y1))
 
 /**
  * Простая
@@ -94,7 +96,8 @@ fun thirdDigit(number: Int): Int = (number / 100) % 10
  * прибыл на станцию назначения в h2 часов m2 минут того же дня (например в 13:01).
  * Определите время поезда в пути в минутах (в данном случае 216).
  */
-fun travelMinutes(hoursDepart: Int, minutesDepart: Int, hoursArrive: Int, minutesArrive: Int): Int = (hoursArrive*60 + minutesArrive)-(hoursDepart*60 + minutesDepart)
+fun travelMinutes(hoursDepart: Int, minutesDepart: Int, hoursArrive: Int, minutesArrive: Int):
+        Int = (hoursArrive * 60 + minutesArrive) - (hoursDepart * 60 + minutesDepart)
 
 /**
  * Простая
@@ -103,7 +106,8 @@ fun travelMinutes(hoursDepart: Int, minutesDepart: Int, hoursArrive: Int, minute
  * Сколько денег будет на счету через 3 года (с учётом сложных процентов)?
  * Например, 100 рублей под 10% годовых превратятся в 133.1 рубля
  */
-fun accountInThreeYears(initial: Int, percent: Int): Double = initial*(1+percent/100.0)*(1+percent/100.0)*(1+percent/100.0)
+fun accountInThreeYears(initial: Int, percent: Int):
+        Double = initial * (1 + percent / 100.0) * (1 + percent / 100.0) * (1 + percent / 100.0)
 
 /**
  * Простая
@@ -111,4 +115,4 @@ fun accountInThreeYears(initial: Int, percent: Int): Double = initial*(1+percent
  * Пользователь задает целое трехзначное число (например, 478).
  *Необходимо вывести число, полученное из заданного перестановкой цифр в обратном порядке (например, 874).
  */
-fun numberRevert(number: Int): Int = (number/100)+((number % 100)/10) * 10 + (number%10)*100
+fun numberRevert(number: Int): Int = (number / 100) + ((number % 100) / 10) * 10 + (number % 10) * 100
