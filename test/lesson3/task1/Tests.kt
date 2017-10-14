@@ -216,6 +216,5 @@ class Tests {
         assertEquals(2, fibSequenceDigit(9))
         assertEquals(5, fibSequenceDigit(14))
         assertEquals(2, fibSequenceDigit(20))
-        //assertEquals(2, fibSequenceDigit(225))
     }
 }

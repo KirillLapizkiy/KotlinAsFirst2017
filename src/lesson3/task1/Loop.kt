@@ -73,10 +73,18 @@ fun digitNumber(n: Int): Int = when {
  * Ряд Фибоначчи определён следующим образом: fib(1) = 1, fib(2) = 1, fib(n+2) = fib(n) + fib(n+1)
  */
 fun fib(n: Int): Int {
-    if (n == 1) return 1
-    if (n == 2) return 1
-    return fib(n-2) + fib(n-1)
-
+    var f1 = 1
+    var f2 = 1
+    var f3 = 1
+    var k = 2
+    if ((n == 1)||(n == 2)) return 1
+    while(k < n){
+        f3 = f1 + f2
+        f1 = f2
+        f2 = f3
+        ++k
+    }
+    return f3
 }
 
 
@@ -87,11 +95,15 @@ fun fib(n: Int): Int {
  * минимальное число k, которое делится и на m и на n без остатка
  */
 fun lcm(m: Int, n: Int): Int {
-    var p = 0
-    for(i in 1..n*m){
-        if ((i % n == 0) && (i % m == 0)) return i
+    //gcd * lcm == m * n
+    var gcd = 1
+    var i = 1
+
+    while ((i <= m) && (i <= n)) {
+        if(m % i == 0 && n % i == 0) gcd = i
+        ++i
     }
-    return p
+    return m * n / gcd
 }
 
 /**
@@ -105,7 +117,6 @@ fun minDivisor(n: Int): Int {
         if (n % minD == 0) return minD
         ++minD
     }
-    return minD
 }
 
 /**
@@ -119,7 +130,6 @@ fun maxDivisor(n: Int): Int {
         if (n % maxD == 0) return maxD
         --maxD
     }
-    return maxD
 }
 /**
  * Простая
@@ -128,14 +138,15 @@ fun maxDivisor(n: Int): Int {
  * Взаимно простые числа не имеют общих делителей, кроме 1.
  * Например, 25 и 49 взаимно простые, а 6 и 8 -- нет.
  */
-fun isCoPrime(m: Int, n: Int): Boolean {
+fun isCoPrime(m: Int, n: Int): Boolean = m * n / lcm(m, n) == 1
+/*{
     var k = 2
     while(k <= min(m,n)){
         if((m % k == 0)&&(n % k == 0)) return false
         ++k
     }
     return true
-}
+}*/
 /**
  * Простая
  *
@@ -147,7 +158,7 @@ fun isCoPrime(m: Int, n: Int): Boolean {
 fun squareBetweenExists(m: Int, n: Int): Boolean {
     var k = 0.0
     while (k*k <= n){
-        if((m <= pow(k,2.0)) && (pow(k,2.0) <= n)) return true
+        if((m <= k*k) && (k*k <= n)) return true
         ++k
     }
     return false
@@ -161,19 +172,17 @@ fun squareBetweenExists(m: Int, n: Int): Boolean {
  * Нужную точность считать достигнутой, если очередной член ряда меньше eps по модулю
  */
 fun sin(x: Double, eps: Double): Double {
-    //мучался целый день, никак не могу найти ошибку, хотя остальное сделал быстро
-    var k = x
-    var l = x
+    val normal = x % (2 * PI)
+    var k = normal
+    var l = normal
     var i = 2.0
-    while(abs(k) > eps){
-        k = -k * pow(x, 2.0) /(i * (i + 1.0))
+    while (abs(k) > eps) {
+        k = (-k * normal * normal) / (i * (i + 1.0))
         l += k
         i += 2.0
     }
-    //if (ceil(l) <= -2.0) return ceil(l) + 2.0 else if (ceil(l) >= 2.0) return ceil(l) - 2.0 else
-    return ceil(l)
+    return l
 }
-
 
 /**
  * Средняя
@@ -183,16 +192,16 @@ fun sin(x: Double, eps: Double): Double {
  * Нужную точность считать достигнутой, если очередной член ряда меньше eps по модулю
  */
 fun cos(x: Double, eps: Double): Double {
-    //мучался целый день, никак не могу найти ошибку, хотя остальное сделал быстро
-    var k = x
+    val normal = x % (2 * PI)
+    var k = 1.0
     var l = 1.0
     var i = 1.0
-    while(abs(k) > eps){
-        k = (-k * x * x) / (i * (i + 1.0))
+    while (abs(k) > eps) {
+        k = (-k * normal * normal) / (i * (i + 1.0))
         l += k
         i += 2.0
     }
-    return ceil(l)
+    return l
 }
 
 /**
@@ -211,15 +220,15 @@ fun revert(n: Int): Int {
         ++count
     }
 
-    count = (pow(10.0, count.toDouble()-1)).toInt()
+    var t = 1
+    for (o in 1..count - 1) t*=10
 
     k = 0
     var s = n
-    s = n
     while(i > 0){
-        k = k + (s % 10)*count
+        k = k + (s % 10)*t
         s = s / 10
-        count = count / 10
+        t = t / 10
         --i
     }
     return k
@@ -235,14 +244,17 @@ fun revert(n: Int): Int {
 fun isPalindrome(n: Int): Boolean {
     var k = n
     var count = 0
-    while(k > 0){
+    while (k > 0) {
         k = k / 10
         ++count
     }
-    var t = pow(10.0, (count-1).toDouble()).toInt()
+
+    var t = 1
+    for (i in 1..count-1) t*=10
+
     k = 10
     var s = n
-    for(i in 1..(count / 2 + count % 2)){
+    for (i in 1..(count / 2 + count % 2)) {
         if (s / t != (n % k) * 10 / k) return false
         k = k * 10
         s = s % t
@@ -259,11 +271,10 @@ fun isPalindrome(n: Int): Boolean {
  */
 fun hasDifferentDigits(n: Int): Boolean {
     if(n < 10) return false
-    var k = 0
     var count = 1
     val prev = n % 10
     while(n / count != 0){
-        k = (n / count) % 10
+        val k = (n / count) % 10
         if (k != prev) return true
         count *= 10
     }
@@ -278,25 +289,21 @@ fun hasDifferentDigits(n: Int): Boolean {
  * Например, 2-я цифра равна 4, 7-я 5, 12-я 6.
  */
 fun squareSequenceDigit(n: Int): Int {
-    var total = 0
     var k = 1
-    var count = 10
     var numberOfDec = 1
-    var cloneTotal = 1
-    var i = 1
-    while(true){
-        total = k * k
-        cloneTotal = total
-        count = 10
-        i = 1
+    while (true) {
+        val total = k * k
+        var cloneTotal = total
+        var count = 10
+        var i = 1
         while (total / count != 0) {
             count *= 10
             ++i
         }
         count /= 10
-        if (total>=10){
-            while(i!=0){
-                if(numberOfDec == n) return cloneTotal / count
+        if (total >= 10) {
+            while (i != 0) {
+                if (numberOfDec == n) return cloneTotal / count
                 ++numberOfDec
                 cloneTotal %= count
                 count /= 10
@@ -319,17 +326,13 @@ fun squareSequenceDigit(n: Int): Int {
  * Например, 2-я цифра равна 1, 9-я 2, 14-я 5.
  */
 fun fibSequenceDigit(n: Int): Int {
-    var total = 0
     var k = 1
-    var count = 10
     var numberOfDec = 1
-    var cloneTotal = 1
-    var i = 1
     while (true) {
-        total = fib(k)
-        cloneTotal = total
-        count = 10
-        i = 1
+        val total = fib(k)
+        var cloneTotal = total
+        var count = 10
+        var i = 1
         while (total / count != 0) {
             count *= 10
             ++i
