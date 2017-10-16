@@ -62,7 +62,7 @@ fun digitCountInNumber(n: Int, m: Int): Int =
  * Например, число 1 содержит 1 цифру, 456 -- 3 цифры, 65536 -- 5 цифр.
  */
 fun digitNumber(n: Int): Int = when {
-    n < 10 -> 1
+    abs(n) < 10 -> 1
     else -> digitNumber(n / 10) + 1
 }
 
@@ -77,7 +77,6 @@ fun fib(n: Int): Int {
     var f2 = 1
     var f3 = 1
     var k = 2
-    if ((n == 1)||(n == 2)) return 1
     while(k < n){
         f3 = f1 + f2
         f1 = f2
@@ -86,7 +85,6 @@ fun fib(n: Int): Int {
     }
     return f3
 }
-
 
 /**
  * Простая
@@ -294,11 +292,12 @@ fun squareSequenceDigit(n: Int): Int {
     while (true) {
         val total = k * k
         var cloneTotal = total
-        var count = 10
-        var i = 1
-        while (total / count != 0) {
+        var count = 1
+        var i = digitNumber(total)
+        var j = 0
+        while (j < i) {
             count *= 10
-            ++i
+            ++j
         }
         count /= 10
         if (total >= 10) {
