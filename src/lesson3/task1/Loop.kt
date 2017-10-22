@@ -290,27 +290,20 @@ fun squareSequenceDigit(n: Int): Int {
     var k = 1
     var numberOfDec = 1
     while (true) {
-        val total = k * k
-        var cloneTotal = total
-        var count = 1
-        var i = digitNumber(total)
-        var j = 0
-        while (j < i) {
-            count *= 10
-            ++j
-        }
-        count /= 10
+        var total = k * k
         if (total >= 10) {
+            var i = digitNumber(total)
             while (i != 0) {
-                if (numberOfDec == n) return cloneTotal / count
+                if (numberOfDec == n) {
+                    for (j in 1..i-1) total /= 10
+                    return total % 10
+                }
                 ++numberOfDec
-                cloneTotal %= count
-                count /= 10
                 --i
             }
             ++k
         } else {
-            if (numberOfDec == n) return cloneTotal
+            if (numberOfDec == n) return total
             ++k
             ++numberOfDec
         }
@@ -328,26 +321,20 @@ fun fibSequenceDigit(n: Int): Int {
     var k = 1
     var numberOfDec = 1
     while (true) {
-        val total = fib(k)
-        var cloneTotal = total
-        var count = 10
-        var i = 1
-        while (total / count != 0) {
-            count *= 10
-            ++i
-        }
-        count /= 10
+        var total = fib(k)
+        var i = digitNumber(total)
         if (total >= 10) {
             while (i != 0) {
-                if (numberOfDec == n) return cloneTotal / count
+                if (numberOfDec == n) {
+                    for (j in 1..i-1) total /= 10
+                    return total % 10
+                }
                 ++numberOfDec
-                cloneTotal %= count
-                count /= 10
                 --i
             }
             ++k
         } else {
-            if (numberOfDec == n) return cloneTotal
+            if (numberOfDec == n) return total
             ++k
             ++numberOfDec
         }
