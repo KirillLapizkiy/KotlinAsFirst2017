@@ -2,6 +2,7 @@
 package lesson4.task1
 
 import lesson1.task1.discriminant
+import lesson3.task1.digitNumber
 
 /**
  * Пример
@@ -307,4 +308,64 @@ fun center(list: MutableList<Double>): MutableList<Double> {
      * Например, 375 = "триста семьдесят пять",
      * 23964 = "двадцать три тысячи девятьсот шестьдесят четыре"
      */
-    fun russian(n: Int): String = TODO()
+    fun russian(n: Int): String {
+        val rus1 = listOf<String>("","один", "два", "три", "четыре", "пять","шесть","семь","восемь","девять")
+        val rus1thous = listOf<String>("","одна тысяча", "две тысячи", "три тысячи", "четыре тысячи", "пять тысяч",
+                                        "шесть тысяч","семь тысяч","восемь тысяч","девять тысяч")
+        val rus11=listOf<String>("","одиннадцать", "двенадцать", "тринадцать", "четырнадцать",
+                                "пятнадцать","шестнадцать","семнадцать","восемнадцать","девятнадцать")
+        val rus10=listOf<String>("","десять", "двадцать", "тридцать", "сорок",
+                "пятьдесят","шестьдесят","семьдесят","восемьдесят","девяносто")
+        val rus100 = listOf<String>("","сто", "двести", "триста", "четыреста", "пятьсот","шестьсот",
+                                    "семьсот","восемьсот","девятьсот")
+        val string = mutableListOf<String>()
+        when{
+            n > 999 -> {
+                val buf = n/1000
+                when{
+                    buf % 100 == 0 -> {
+                        string.add(rus100[buf/100])
+                        string.add("тысяч")
+                    }
+                    buf % 10 == 0 -> {
+                        string.add(rus100[buf/100])
+                        string.add(rus10[(buf % 100)/10])
+                        string.add("тысяч")
+                    }
+                    ((buf % 100) > 10) && ((buf % 100) < 20) -> {
+                        string.add(rus100[buf/100])
+                        string.add(rus11[(buf % 100) - 10])
+                        string.add("тысяч")
+                    }
+                    else -> {
+                        string.add(rus100[buf/100])
+                        string.add(rus10[(buf % 100)/10])
+                        string.add(rus1thous[buf % 10])
+                    }
+                }
+            }
+
+        }
+        val buf = n % 1000
+        string.add(rus100[buf/100])
+        when{
+            buf % 10 == 0 ->  string.add(rus10[(buf % 100)/10])
+            (buf % 100) > 10 && (buf % 100) < 20 -> string.add(rus11[(buf % 100) - 10])
+            else -> {
+                string.add(rus10[(buf % 100)/10])
+                string.add(rus1[buf % 10])
+            }
+        }
+        /*
+        for (i in 0 until string.size)
+            if (string[i] == "") string.removeAt(i)      понятия не имею, в чём дело
+
+           Возникает ошибка: java.lang.IndexOutOfBoundsException: Index: 5, Size: 5
+           Но я не понимаю, что именно не так, потому что этот фрагмент кода идеален в моей теории
+
+           Поэтому пришлось создать клон string1, но это занимает память.
+           А способом выше я хотел достичь минимума переменных*/
+        val string1 = mutableListOf<String>()
+        for (elem in string) if (elem != "") string1.add(elem)
+        return string1.joinToString (separator = " ", postfix = "")
+    }
