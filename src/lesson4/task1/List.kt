@@ -278,7 +278,15 @@ fun center(list: MutableList<Double>): MutableList<Double> {
      * из системы счисления с основанием base в десятичную.
      * Например: digits = (1, 3, 12), base = 14 -> 250
      */
-    fun decimal(digits: List<Int>, base: Int): Int = TODO()
+    fun decimal(digits: List<Int>, base: Int): Int {
+        var sum = 0
+        var degree = digits.size - 1
+        for (elem in digits){
+            sum += elem * Math.pow(base.toDouble(), degree.toDouble()).toInt()
+            --degree
+        }
+        return sum
+    }
 
     /**
      * Сложная
@@ -289,7 +297,21 @@ fun center(list: MutableList<Double>): MutableList<Double> {
      * 10 -> a, 11 -> b, 12 -> c и так далее.
      * Например: str = "13c", base = 14 -> 250
      */
-    fun decimalFromString(str: String, base: Int): Int = TODO()
+    fun decimalFromString(str: String, base: Int): Int {
+        var sum = 0
+        val alphabet = listOf("0","1","2","3","4",
+                                        "5","6","7","8","9",
+                                        "a","b","c","d","e",
+                                        "f","g","h","i","j",
+                                        "k","l","m","n","o",
+                                        "p","q","r","s","t",
+                                        "u","v","w","x","y","z")
+        var degree = str.length - 1
+        for(elem in str){
+            sum += elem * Math.pow(base.toDouble(), degree.toDouble()).toInt()
+            --degree
+        }
+    }
 
     /**
      * Сложная
@@ -309,14 +331,14 @@ fun center(list: MutableList<Double>): MutableList<Double> {
      * 23964 = "двадцать три тысячи девятьсот шестьдесят четыре"
      */
     fun russian(n: Int): String {
-        val rus1 = listOf<String>("","один", "два", "три", "четыре", "пять","шесть","семь","восемь","девять")
-        val rus1thous = listOf<String>("","одна тысяча", "две тысячи", "три тысячи", "четыре тысячи", "пять тысяч",
+        val rus1 = listOf("","один", "два", "три", "четыре", "пять","шесть","семь","восемь","девять")
+        val rus1thous = listOf("","одна тысяча", "две тысячи", "три тысячи", "четыре тысячи", "пять тысяч",
                                         "шесть тысяч","семь тысяч","восемь тысяч","девять тысяч")
-        val rus11=listOf<String>("","одиннадцать", "двенадцать", "тринадцать", "четырнадцать",
+        val rus11=listOf("","одиннадцать", "двенадцать", "тринадцать", "четырнадцать",
                                 "пятнадцать","шестнадцать","семнадцать","восемнадцать","девятнадцать")
-        val rus10=listOf<String>("","десять", "двадцать", "тридцать", "сорок",
+        val rus10=listOf("","десять", "двадцать", "тридцать", "сорок",
                 "пятьдесят","шестьдесят","семьдесят","восемьдесят","девяносто")
-        val rus100 = listOf<String>("","сто", "двести", "триста", "четыреста", "пятьсот","шестьсот",
+        val rus100 = listOf("","сто", "двести", "триста", "четыреста", "пятьсот","шестьсот",
                                     "семьсот","восемьсот","девятьсот")
         val string = mutableListOf<String>()
         when{
@@ -356,16 +378,5 @@ fun center(list: MutableList<Double>): MutableList<Double> {
                 string.add(rus1[buf % 10])
             }
         }
-        /*
-        for (i in 0 until string.size)
-            if (string[i] == "") string.removeAt(i)      понятия не имею, в чём дело
-
-           Возникает ошибка: java.lang.IndexOutOfBoundsException: Index: 5, Size: 5
-           Но я не понимаю, что именно не так, потому что этот фрагмент кода идеален в моей теории
-
-           Поэтому пришлось создать клон string1, но это занимает память.
-           А способом выше я хотел достичь минимума переменных*/
-        val string1 = mutableListOf<String>()
-        for (elem in string) if (elem != "") string1.add(elem)
-        return string1.joinToString (separator = " ", postfix = "")
+        return string.filter { it != "" }.joinToString (separator = " ")
     }
