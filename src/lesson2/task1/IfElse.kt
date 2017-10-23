@@ -113,15 +113,34 @@ fun rookOrBishopThreatens(kingX: Int, kingY: Int,
  * прямоугольным (вернуть 1) или тупоугольным (вернуть 2).
  * Если такой треугольник не существует, вернуть -1.
  */
-// специально писал слитно, чтобы удобнее было различить возведение в квадрат
-fun triangleKind(a: Double, b: Double, c: Double): Int =
-        when{
-            (a >= b + c) || (b >= a + c) || (c >= a + b) -> -1
-            (a*a < b*b + c*c) && (b*b < a*a + c*c) && (c*c < a*a + b*b) -> 0
-            (a*a == b*b + c*c) || (b*b == a*a + c*c) || (c*c == a*a + b*b) -> 1
-            else -> 2
+fun triangleKind(a: Double, b: Double, c: Double): Int {
+    var max = 0.0
+    var min = 0.0
+    var min2 = 0.0
+    when {
+        (a >= b + c) || (b >= a + c) || (c >= a + b) -> return -1
+        ((a > b) && (a > c)) -> {
+            max = a
+            min = b
+            min2 = c
         }
-
+        ((b > a) && (b > c)) -> {
+            max = b
+            min = a
+            min2 = c
+        }
+        else -> {
+            max = c
+            min = a
+            min2 = b
+        }
+    }
+    when {
+        (max * max == min * min + min2 * min2) -> return 1
+        (max * max < min * min + min2 * min2) -> return 0
+        else -> return 2
+    }
+}
 /**
  * Средняя
  *

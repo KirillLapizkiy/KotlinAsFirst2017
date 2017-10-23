@@ -1,4 +1,5 @@
 @file:Suppress("UNUSED_PARAMETER")
+
 package lesson4.task1
 
 import lesson1.task1.discriminant
@@ -107,7 +108,7 @@ fun buildSumExample(list: List<Int>) = list.joinToString(separator = " + ", post
  * по формуле abs = sqrt(a1^2 + a2^2 + ... + aN^2).
  * Модуль пустого вектора считать равным 0.0.
  */
-fun abs(v: List<Double>): Double = if (v.size == 0) 0.0 else Math.sqrt(v.map {it * it}.sum())
+fun abs(v: List<Double>): Double = if (v.size == 0) 0.0 else Math.sqrt(v.map { it * it }.sum())
 
 /**
  * Простая
@@ -129,254 +130,297 @@ fun center(list: MutableList<Double>): MutableList<Double> {
     for (i in 0 until list.size)
         list[i] = list[i] - s
     return list
-    }
+}
 
-    /**
-     * Средняя
-     *
-     * Найти скалярное произведение двух векторов равной размерности,
-     * представленные в виде списков a и b. Скалярное произведение считать по формуле:
-     * C = a1b1 + a2b2 + ... + aNbN. Произведение пустых векторов считать равным 0.0.
-     */
-    fun times(a: List<Double>, b: List<Double>): Double {
-        var sum = 0.0
-        for (i in 0 until a.size)
-            sum += a[i] * b[i]
-        return sum
-    }
+/**
+ * Средняя
+ *
+ * Найти скалярное произведение двух векторов равной размерности,
+ * представленные в виде списков a и b. Скалярное произведение считать по формуле:
+ * C = a1b1 + a2b2 + ... + aNbN. Произведение пустых векторов считать равным 0.0.
+ */
+fun times(a: List<Double>, b: List<Double>): Double {
+    var sum = 0.0
+    for (i in 0 until a.size)
+        sum += a[i] * b[i]
+    return sum
+}
 
-    /**
-     * Средняя
-     *
-     * Рассчитать значение многочлена при заданном x:
-     * p(x) = p0 + p1*x + p2*x^2 + p3*x^3 + ... + pN*x^N.
-     * Коэффициенты многочлена заданы списком p: (p0, p1, p2, p3, ..., pN).
-     * Значение пустого многочлена равно 0.0 при любом x.
-     */
-    fun polynom(p: List<Double>, x: Double): Double {
-        var degree = 0.0
-        var sum = 0.0
-        for (i in 0 until p.size){
-            sum += p[i]* Math.pow(x,degree)
-            ++degree
+/**
+ * Средняя
+ *
+ * Рассчитать значение многочлена при заданном x:
+ * p(x) = p0 + p1*x + p2*x^2 + p3*x^3 + ... + pN*x^N.
+ * Коэффициенты многочлена заданы списком p: (p0, p1, p2, p3, ..., pN).
+ * Значение пустого многочлена равно 0.0 при любом x.
+ */
+fun polynom(p: List<Double>, x: Double): Double {
+    var degree = 0.0
+    var sum = 0.0
+    for (i in 0 until p.size) {
+        sum += p[i] * Math.pow(x, degree)
+        ++degree
+    }
+    return sum
+}
+
+/**
+ * Средняя
+ *
+ * В заданном списке list каждый элемент, кроме первого, заменить
+ * суммой данного элемента и всех предыдущих.
+ * Например: 1, 2, 3, 4 -> 1, 3, 6, 10.
+ * Пустой список не следует изменять. Вернуть изменённый список.
+ *
+ * Обратите внимание, что данная функция должна изменять содержание списка list, а не его копии.
+ */
+fun accumulate(list: MutableList<Double>): MutableList<Double> {
+    var sum = 0.0
+    for (i in 0 until list.size) {
+        list[i] = sum + list[i]
+        sum = list[i]
+    }
+    return list
+}
+
+/**
+ * Средняя
+ *
+ * Разложить заданное натуральное число n > 1 на простые множители.
+ * Результат разложения вернуть в виде списка множителей, например 75 -> (3, 5, 5).
+ * Множители в списке должны располагаться по возрастанию.
+ */
+fun factorize(n: Int): List<Int> {
+    val list = mutableListOf<Int>()
+    var j = 2
+    var cloneN = n
+    while (j <= cloneN) {
+        if (cloneN % j == 0) {
+            cloneN /= j
+            list.add(j)
+            j = 1
         }
-        return sum
+        ++j
     }
+    return list
+}
 
-    /**
-     * Средняя
-     *
-     * В заданном списке list каждый элемент, кроме первого, заменить
-     * суммой данного элемента и всех предыдущих.
-     * Например: 1, 2, 3, 4 -> 1, 3, 6, 10.
-     * Пустой список не следует изменять. Вернуть изменённый список.
-     *
-     * Обратите внимание, что данная функция должна изменять содержание списка list, а не его копии.
-     */
-    fun accumulate(list: MutableList<Double>): MutableList<Double> {
-        var sum = list[0]
-        for (i in 1 until list.size){
-            list[i] = sum + list[i]
-            sum = list[i]
+/**
+ * Сложная
+ *
+ * Разложить заданное натуральное число n > 1 на простые множители.
+ * Результат разложения вернуть в виде строки, например 75 -> 3*5*5
+ */
+fun factorizeToString(n: Int): String {
+    var string = ""
+    var j = 2
+    var cloneN = n
+    while (j <= cloneN) {
+        if (cloneN % j == 0) {
+            cloneN /= j
+            string += "$j*"
+            j = 1
         }
-        return list
+        ++j
     }
+    return string.substring(0, string.length - 1)
+}
 
-    /**
-     * Средняя
-     *
-     * Разложить заданное натуральное число n > 1 на простые множители.
-     * Результат разложения вернуть в виде списка множителей, например 75 -> (3, 5, 5).
-     * Множители в списке должны располагаться по возрастанию.
-     */
-    fun factorize(n: Int): List<Int> {
-        val list = mutableListOf<Int>()
-        var j = 2
-        var cloneN = n
-        while(j <= cloneN){
-            if(cloneN % j == 0) {
-                cloneN /= j
-                list.add(j)
-                j = 1
-            }
-            ++j
-        }
-        return list
+/** Средняя
+ *
+ * Перевести заданное целое число n >= 0 в систему счисления с основанием base > 1.
+ * Результат перевода вернуть в виде списка цифр в base-ичной системе от старшей к младшей,
+ * например: n = 100, base = 4 -> (1, 2, 1, 0) или n = 250, base = 14 -> (1, 3, 12)
+ */
+fun convert(n: Int, base: Int): List<Int> {
+    var cloneN = n
+    if (n < base) return mutableListOf<Int>(n)
+    val list = mutableListOf<Int>()
+    while (cloneN / base != 0) {
+        list.add(0, cloneN % base)
+        cloneN /= base
     }
+    list.add(0, cloneN)
+    return list
+}
 
-    /**
-     * Сложная
-     *
-     * Разложить заданное натуральное число n > 1 на простые множители.
-     * Результат разложения вернуть в виде строки, например 75 -> 3*5*5
-     */
-    fun factorizeToString(n: Int): String {
-        var string = ""
-        var j = 2
-        var cloneN = n
-        while(j <= cloneN){
-            if(cloneN % j == 0) {
-                cloneN /= j
-                string += "$j*"
-                j = 1
-            }
-            ++j
-        }
-        return string.substring(0, string.length - 1)
+/**
+ * Сложная
+ *
+ * Перевести заданное целое число n >= 0 в систему счисления с основанием 1 < base < 37.
+ * Результат перевода вернуть в виде строки, цифры более 9 представлять латинскими
+ * строчными буквами: 10 -> a, 11 -> b, 12 -> c и так далее.
+ * Например: n = 100, base = 4 -> 1210, n = 250, base = 14 -> 13c
+ */
+fun convertToString(n: Int, base: Int): String {
+    var cloneN = n
+    val alphabet = listOf<String>("0", "1", "2", "3", "4",
+            "5", "6", "7", "8", "9",
+            "a", "b", "c", "d", "e",
+            "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o",
+            "p", "q", "r", "s", "t",
+            "u", "v", "w", "x", "y", "z")
+    if (n < base) return alphabet[n]
+    var string = ""
+    while (cloneN / base != 0) {
+        string = alphabet[cloneN % base] + string
+        cloneN /= base
     }
+    string = alphabet[cloneN] + string
+    return string
+}
 
-     /** Средняя
-     *
-     * Перевести заданное целое число n >= 0 в систему счисления с основанием base > 1.
-     * Результат перевода вернуть в виде списка цифр в base-ичной системе от старшей к младшей,
-     * например: n = 100, base = 4 -> (1, 2, 1, 0) или n = 250, base = 14 -> (1, 3, 12)
-     */
-    fun convert(n: Int, base: Int): List<Int> {
-         var cloneN = n
-         if (n < base) return mutableListOf<Int>(n)
-         val list = mutableListOf<Int>()
-         while(cloneN/base != 0){
-             list.add(0,cloneN % base)
-             cloneN /= base
-         }
-         list.add(0, cloneN)
-         return list
-     }
-
-    /**
-     * Сложная
-     *
-     * Перевести заданное целое число n >= 0 в систему счисления с основанием 1 < base < 37.
-     * Результат перевода вернуть в виде строки, цифры более 9 представлять латинскими
-     * строчными буквами: 10 -> a, 11 -> b, 12 -> c и так далее.
-     * Например: n = 100, base = 4 -> 1210, n = 250, base = 14 -> 13c
-     */
-    fun convertToString(n: Int, base: Int): String {
-        var cloneN = n
-        val alphabet = listOf<String>("0","1","2","3","4",
-                                        "5","6","7","8","9",
-                                        "a","b","c","d","e",
-                                        "f","g","h","i","j",
-                                        "k","l","m","n","o",
-                                        "p","q","r","s","t",
-                                        "u","v","w","x","y","z")
-        if (n < base) return alphabet[n]
-        val list = mutableListOf<Int>()
-        var string = ""
-        while(cloneN/base != 0){
-            string = alphabet[cloneN % base] + string
-            cloneN /= base
+/**
+ * Средняя
+ *
+ * Перевести число, представленное списком цифр digits от старшей к младшей,
+ * из системы счисления с основанием base в десятичную.
+ * Например: digits = (1, 3, 12), base = 14 -> 250
+ */
+fun decimal(digits: List<Int>, base: Int): Int {
+    var sum = 0
+    var degree = digits.size - 1
+    for (elem in digits) {
+        sum += elem * Math.pow(base.toDouble(), degree.toDouble()).toInt()
+        --degree
     }
-        string = alphabet[cloneN] + string
-        return string
+    return sum
+}
+
+/**
+ * Сложная
+ *
+ * Перевести число, представленное цифровой строкой str,
+ * из системы счисления с основанием base в десятичную.
+ * Цифры более 9 представляются латинскими строчными буквами:
+ * 10 -> a, 11 -> b, 12 -> c и так далее.
+ * Например: str = "13c", base = 14 -> 250
+ */
+fun decimalFromString(str: String, base: Int): Int {
+    var sum = 0
+    val alphabet = listOf("0", "1", "2", "3", "4",
+            "5", "6", "7", "8", "9",
+            "a", "b", "c", "d", "e",
+            "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o",
+            "p", "q", "r", "s", "t",
+            "u", "v", "w", "x", "y", "z")
+    var degree = str.length - 1
+    for (elem in str) {
+        sum += alphabet.indexOf(elem.toString()) * Math.pow(base.toDouble(), degree.toDouble()).toInt()
+        --degree
     }
+    return sum
+}
 
-    /**
-     * Средняя
-     *
-     * Перевести число, представленное списком цифр digits от старшей к младшей,
-     * из системы счисления с основанием base в десятичную.
-     * Например: digits = (1, 3, 12), base = 14 -> 250
-     */
-    fun decimal(digits: List<Int>, base: Int): Int {
-        var sum = 0
-        var degree = digits.size - 1
-        for (elem in digits){
-            sum += elem * Math.pow(base.toDouble(), degree.toDouble()).toInt()
-            --degree
-        }
-        return sum
+/**
+ * Сложная
+ *
+ * Перевести натуральное число n > 0 в римскую систему.
+ * Римские цифры: 1 = I, 4 = IV, 5 = V, 9 = IX, 10 = X, 40 = XL, 50 = L,
+ * 90 = XC, 100 = C, 400 = CD, 500 = D, 900 = CM, 1000 = M.
+ * Например: 23 = XXIII, 44 = XLIV, 100 = C
+ */
+fun roman(n: Int): String {
+    var buf = n
+    var result = ""
+    val roman = listOf("", "I", "II", "III", "IV",
+            "V", "VI", "VII", "VIII", "IX")
+    while (buf >= 1000) {
+        buf -= 1000
+        result += "M"
     }
-
-    /**
-     * Сложная
-     *
-     * Перевести число, представленное цифровой строкой str,
-     * из системы счисления с основанием base в десятичную.
-     * Цифры более 9 представляются латинскими строчными буквами:
-     * 10 -> a, 11 -> b, 12 -> c и так далее.
-     * Например: str = "13c", base = 14 -> 250
-     */
-    fun decimalFromString(str: String, base: Int): Int {
-        var sum = 0
-        val alphabet = listOf("0","1","2","3","4",
-                                        "5","6","7","8","9",
-                                        "a","b","c","d","e",
-                                        "f","g","h","i","j",
-                                        "k","l","m","n","o",
-                                        "p","q","r","s","t",
-                                        "u","v","w","x","y","z")
-        var degree = str.length - 1
-        for(elem in str){
-            sum += elem * Math.pow(base.toDouble(), degree.toDouble()).toInt()
-            --degree
-        }
+    if (buf - 900 >= 0) {
+        buf -= 900
+        result += "CM"
     }
+    if (buf - 500 >= 0) {
+        buf -= 500
+        result += "D"
+    }
+    if (buf - 400 >= 0) {
+        buf -= 400
+        result += "CD"
+    }
+    while (buf >= 100) {
+        buf -= 100
+        result += "C"
+    }
+    if (buf - 90 >= 0) {
+        buf -= 90
+        result += "XC"
+    }
+    if (buf - 50 >= 0) {
+        buf -= 50
+        result += "L"
+    }
+    if (buf - 40 >= 0) {
+        buf -= 40
+        result += "XL"
+    }
+    while (buf >= 10) {
+        buf -= 10
+        result += "X"
+    }
+    result += roman[buf]
+    return result
+}
 
-    /**
-     * Сложная
-     *
-     * Перевести натуральное число n > 0 в римскую систему.
-     * Римские цифры: 1 = I, 4 = IV, 5 = V, 9 = IX, 10 = X, 40 = XL, 50 = L,
-     * 90 = XC, 100 = C, 400 = CD, 500 = D, 900 = CM, 1000 = M.
-     * Например: 23 = XXIII, 44 = XLIV, 100 = C
-     */
-    fun roman(n: Int): String = TODO()
-
-    /**
-     * Очень сложная
-     *
-     * Записать заданное натуральное число 1..999999 прописью по-русски.
-     * Например, 375 = "триста семьдесят пять",
-     * 23964 = "двадцать три тысячи девятьсот шестьдесят четыре"
-     */
-    fun russian(n: Int): String {
-        val rus1 = listOf("","один", "два", "три", "четыре", "пять","шесть","семь","восемь","девять")
-        val rus1thous = listOf("","одна тысяча", "две тысячи", "три тысячи", "четыре тысячи", "пять тысяч",
-                                        "шесть тысяч","семь тысяч","восемь тысяч","девять тысяч")
-        val rus11=listOf("","одиннадцать", "двенадцать", "тринадцать", "четырнадцать",
-                                "пятнадцать","шестнадцать","семнадцать","восемнадцать","девятнадцать")
-        val rus10=listOf("","десять", "двадцать", "тридцать", "сорок",
-                "пятьдесят","шестьдесят","семьдесят","восемьдесят","девяносто")
-        val rus100 = listOf("","сто", "двести", "триста", "четыреста", "пятьсот","шестьсот",
-                                    "семьсот","восемьсот","девятьсот")
-        val string = mutableListOf<String>()
-        when{
-            n > 999 -> {
-                val buf = n/1000
-                when{
-                    buf % 100 == 0 -> {
-                        string.add(rus100[buf/100])
-                        string.add("тысяч")
-                    }
-                    buf % 10 == 0 -> {
-                        string.add(rus100[buf/100])
-                        string.add(rus10[(buf % 100)/10])
-                        string.add("тысяч")
-                    }
-                    ((buf % 100) > 10) && ((buf % 100) < 20) -> {
-                        string.add(rus100[buf/100])
-                        string.add(rus11[(buf % 100) - 10])
-                        string.add("тысяч")
-                    }
-                    else -> {
-                        string.add(rus100[buf/100])
-                        string.add(rus10[(buf % 100)/10])
-                        string.add(rus1thous[buf % 10])
-                    }
+/**
+ * Очень сложная
+ *
+ * Записать заданное натуральное число 1..999999 прописью по-русски.
+ * Например, 375 = "триста семьдесят пять",
+ * 23964 = "двадцать три тысячи девятьсот шестьдесят четыре"
+ */
+fun russian(n: Int): String {
+    val rus1 = listOf("", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять")
+    val rus1thous = listOf("", "одна тысяча", "две тысячи", "три тысячи", "четыре тысячи", "пять тысяч",
+            "шесть тысяч", "семь тысяч", "восемь тысяч", "девять тысяч")
+    val rus11 = listOf("", "одиннадцать", "двенадцать", "тринадцать", "четырнадцать",
+            "пятнадцать", "шестнадцать", "семнадцать", "восемнадцать", "девятнадцать")
+    val rus10 = listOf("", "десять", "двадцать", "тридцать", "сорок",
+            "пятьдесят", "шестьдесят", "семьдесят", "восемьдесят", "девяносто")
+    val rus100 = listOf("", "сто", "двести", "триста", "четыреста", "пятьсот", "шестьсот",
+            "семьсот", "восемьсот", "девятьсот")
+    val string = mutableListOf<String>()
+    when {
+        n > 999 -> {
+            val buf = n / 1000
+            when {
+                buf % 100 == 0 -> {
+                    string.add(rus100[buf / 100])
+                    string.add("тысяч")
+                }
+                buf % 10 == 0 -> {
+                    string.add(rus100[buf / 100])
+                    string.add(rus10[(buf % 100) / 10])
+                    string.add("тысяч")
+                }
+                ((buf % 100) > 10) && ((buf % 100) < 20) -> {
+                    string.add(rus100[buf / 100])
+                    string.add(rus11[(buf % 100) - 10])
+                    string.add("тысяч")
+                }
+                else -> {
+                    string.add(rus100[buf / 100])
+                    string.add(rus10[(buf % 100) / 10])
+                    string.add(rus1thous[buf % 10])
                 }
             }
+        }
 
-        }
-        val buf = n % 1000
-        string.add(rus100[buf/100])
-        when{
-            buf % 10 == 0 ->  string.add(rus10[(buf % 100)/10])
-            (buf % 100) > 10 && (buf % 100) < 20 -> string.add(rus11[(buf % 100) - 10])
-            else -> {
-                string.add(rus10[(buf % 100)/10])
-                string.add(rus1[buf % 10])
-            }
-        }
-        return string.filter { it != "" }.joinToString (separator = " ")
     }
+    val buf = n % 1000
+    string.add(rus100[buf / 100])
+    when {
+        buf % 10 == 0 -> string.add(rus10[(buf % 100) / 10])
+        (buf % 100) > 10 && (buf % 100) < 20 -> string.add(rus11[(buf % 100) - 10])
+        else -> {
+            string.add(rus10[(buf % 100) / 10])
+            string.add(rus1[buf % 10])
+        }
+    }
+    return string.filter { it != "" }.joinToString(separator = " ")
+}
