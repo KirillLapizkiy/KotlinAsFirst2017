@@ -1,4 +1,5 @@
 @file:Suppress("UNUSED_PARAMETER")
+
 package lesson5.task1
 
 /**
@@ -48,12 +49,10 @@ fun main(args: Array<String>) {
         val seconds = timeStrToSeconds(line)
         if (seconds == -1) {
             println("Введённая строка $line не соответствует формату ЧЧ:ММ:СС")
-        }
-        else {
+        } else {
             println("Прошло секунд с начала суток: $seconds")
         }
-    }
-    else {
+    } else {
         println("Достигнут <конец файла> в процессе чтения строки. Программа прервана")
     }
 }
@@ -67,12 +66,12 @@ fun main(args: Array<String>) {
  * При неверном формате входной строки вернуть пустую строку
  */
 fun dateStrToDigit(str: String): String {
-    val months = listOf("","января","февраля","марта","апреля","мая","июня",
-                    "июля","августа","сентября","октября","ноября", "декабря")
-    val numbers = listOf("0","1","2","3","4","5","6","7","8","9")
+    val months = listOf("", "января", "февраля", "марта", "апреля", "мая", "июня",
+            "июля", "августа", "сентября", "октября", "ноября", "декабря")
+    val numbers = listOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
     val parts = str.split(" ")
-    if ((parts.size!= 3) || (parts[2].length != 4)) return ""
-    for (i in 0..3){
+    if ((parts.size != 3) || (parts[2].length != 4)) return ""
+    for (i in 0..3) {
         if (parts[2][i].toString() !in numbers) return ""
     }
     var days = parts[0]
@@ -121,13 +120,13 @@ fun dateDigitToStr(digital: String): String {
  */
 fun flattenPhoneNumber(phone: String): String {
     val numbers = listOf<Char>('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
-    when{
+    when {
         phone.first() in numbers -> {
             var result = ""
             for (symbol in phone)
-                when{
+                when {
                     (symbol in numbers) -> result += symbol.toString()
-                    (symbol == ')') || (symbol == '(') || (symbol == '-') || (symbol == '+') || (symbol == ' ')-> null
+                    (symbol == ')') || (symbol == '(') || (symbol == '-') || (symbol == '+') || (symbol == ' ') -> null
                     else -> return ""
                 }
             return result
@@ -157,7 +156,28 @@ fun flattenPhoneNumber(phone: String): String {
  * Прочитать строку и вернуть максимальное присутствующее в ней число (717 в примере).
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
-fun bestLongJump(jumps: String): Int = TODO()
+fun bestLongJump(jumps: String): Int {
+    val numbers = listOf<Char>('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+    val allowedSymbols = listOf("%", "-")
+    val parts = jumps.split(" ")
+    var buf = ""
+    var bestScore = -1
+    for (part in parts) {
+        when {
+            (part.length == 1) && (part !in allowedSymbols) -> return -1
+
+            (part.length == 1) && (part in allowedSymbols) -> null
+            else -> {
+                for (symbol in part)
+                    if (symbol !in numbers)
+                        buf += symbol.toString() else return -1
+                if (buf.toInt() > bestScore) bestScore = buf.toInt()
+                buf = ""
+            }
+        }
+    }
+    return bestScore
+}
 
 /**
  * Сложная
@@ -169,7 +189,36 @@ fun bestLongJump(jumps: String): Int = TODO()
  * Прочитать строку и вернуть максимальную взятую высоту (230 в примере).
  * При нарушении формата входной строки вернуть -1.
  */
-fun bestHighJump(jumps: String): Int = TODO()
+fun bestHighJump(jumps: String): Int {
+    val numbers = listOf<Char>('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+    val allowedSymbols = listOf('%', '-', '+')
+    val parts = jumps.split(" ")
+    var buf = ""
+    var bestScore = -1
+    var type = 1
+    var counted = false
+    //1 - число, -1 - %%-
+    for (part in parts) {
+        when {
+            type == 1 -> {
+                buf = ""
+                for (symbol in part)
+                    if (symbol in numbers) buf += symbol.toString() else return -1
+            }
+            type == -1 -> {
+                for (symbol in part)
+                    if (symbol !in allowedSymbols) return -1 else
+                        when {
+                            symbol == '-' -> counted = false
+                            symbol == '+' -> counted = true
+                        }
+            }
+        }
+        if (counted && (buf.toInt() > bestScore) && (type == -1)) bestScore = buf.toInt()
+        type *= (-1)
+    }
+    return bestScore
+}
 
 /**
  * Сложная
@@ -180,7 +229,49 @@ fun bestHighJump(jumps: String): Int = TODO()
  * Вернуть значение выражения (6 для примера).
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
-fun plusMinus(expression: String): Int = TODO()
+fun plusMinus(expression: String): Int {
+    val numbers = listOf<Char>('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+    val allowedSymbols = listOf("%", "-", "+")
+    val parts = expression.split(" ")
+    var buf = ""
+    var result = 0
+    var type = 1
+    var plus = true
+    for (part in parts) {
+        when {
+            type == 1 -> {
+                for (symbol in part) {
+                    buf = ""
+                    if (symbol in numbers) buf += symbol.toString() else
+                        IllegalArgumentException("Выражение введено некорректно. " +
+                                "Введите его правильно, как в этом примере: \"2 + 31 - 40 + 13\"")
+                }
+            }
+            type == -1 -> {
+                if ((part.length > 1) || (part !in allowedSymbols))
+                    IllegalArgumentException("Выражение введено некорректно. " +
+                            "Введите его правильно, как в этом примере: \"2 + 31 - 40 + 13\"") else
+                    when {
+                        part == "+" -> plus = true
+                        part == "-" -> plus = false
+                    }
+            }
+        }
+        if (type == 1)
+            when {
+                plus -> {
+                    result += buf.toInt()
+                    buf = ""
+                }
+                else -> {
+                    result -= buf.toInt()
+                    buf = ""
+                }
+            }
+        type *= -1
+    }
+    return result
+}
 
 /**
  * Сложная
