@@ -68,15 +68,15 @@ fun main(args: Array<String>) {
 fun dateStrToDigit(str: String): String {
     val months = listOf("", "января", "февраля", "марта", "апреля", "мая", "июня",
             "июля", "августа", "сентября", "октября", "ноября", "декабря")
-    val numbers = listOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
+    val numbers = '0'..'9'
     val parts = str.split(" ")
     if ((parts.size != 3) || (parts[2].length != 4)) return ""
     for (i in 0..3) {
-        if (parts[2][i].toString() !in numbers) return ""
+        if (parts[2][i] !in numbers) return ""
     }
     var days = parts[0]
-    if ((parts[0].length == 1) && (parts[0][0].toString() in numbers)) days = twoDigitStr(parts[0].toInt())
-    if ((days[0].toString() in numbers) && (days[1].toString() in numbers)
+    if ((parts[0].length == 1) && (parts[0][0] in numbers)) days = twoDigitStr(parts[0].toInt())
+    if ((days[0] in numbers) && (days[1] in numbers)
             && (parts[1] in months))
         return String.format("%s.%s.%s", twoDigitStr(parts[0].toInt()),
                 twoDigitStr(months.indexOf(parts[1])), parts[2]) else return ""
@@ -93,12 +93,12 @@ fun dateStrToDigit(str: String): String {
 fun dateDigitToStr(digital: String): String {
     val months = listOf("", "января", "февраля", "марта", "апреля", "мая", "июня",
             "июля", "августа", "сентября", "октября", "ноября", "декабря")
-    val numbers = listOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
+    val numbers = '0'..'9'
     val parts = digital.split(".")
     if ((parts.size != 3) || (parts[0].length != 2) || (parts[1].length != 2)) return ""
     for (part in parts) {
         for (symbol in part)
-            if (symbol.toString() !in numbers) return ""
+            if (symbol !in numbers) return ""
     }
     if (!(0 < parts[1].toInt()) || !(parts[1].toInt() < 13)) return ""
     val days = if (parts[0][0].toString() == "0") parts[0][1].toString() else parts[0]
@@ -119,7 +119,8 @@ fun dateDigitToStr(digital: String): String {
  * При неверном формате вернуть пустую строку
  */
 fun flattenPhoneNumber(phone: String): String {
-    val numbers = listOf<Char>('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+    if (phone.length == 0) return ""
+    val numbers = '0'..'9'
     when {
         phone.first() in numbers -> {
             var result = ""
@@ -157,7 +158,8 @@ fun flattenPhoneNumber(phone: String): String {
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
 fun bestLongJump(jumps: String): Int {
-    val numbers = listOf<Char>('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+    if (jumps.length == 0) return -1
+    val numbers = '0'..'9'
     val allowedSymbols = listOf("%", "-")
     val parts = jumps.split(" ")
     var buf = ""
@@ -190,7 +192,8 @@ fun bestLongJump(jumps: String): Int {
  * При нарушении формата входной строки вернуть -1.
  */
 fun bestHighJump(jumps: String): Int {
-    val numbers = listOf<Char>('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+    if (jumps.length == 0) return -1
+    val numbers = '0'..'9'
     val allowedSymbols = listOf('%', '-', '+')
     val parts = jumps.split(" ")
     var buf = ""
@@ -230,7 +233,8 @@ fun bestHighJump(jumps: String): Int {
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
 fun plusMinus(expression: String): Int {
-    val numbers = listOf<Char>('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+    if (expression.length == 0) return -1
+    val numbers = '0'..'9'
     val allowedSymbols = listOf("%", "-", "+")
     val parts = expression.split(" ")
     var buf = ""
@@ -282,7 +286,25 @@ fun plusMinus(expression: String): Int {
  * Вернуть индекс начала первого повторяющегося слова, или -1, если повторов нет.
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
-fun firstDuplicateIndex(str: String): Int = TODO()
+fun firstDuplicateIndex(str: String): Int {
+    if (str.length == 0) return -1
+    val parts = str.toLowerCase().split(" ")
+    var i = 1
+    val partsCount = parts.count() - 1
+    var symbolsCount = -1
+    for (n in 0 until parts.count()){
+        for(j in i..partsCount){
+            if(parts[n] == parts[j]) {
+                symbolsCount = 0
+                for (k in 0..(i - 1)) symbolsCount += parts[k].length /////////////ask for the help/////////////
+                symbolsCount -= parts[i - 1].length
+                symbolsCount += i - 1
+            }
+        }
+        ++i
+    }
+    return symbolsCount
+}
 
 /**
  * Сложная
@@ -295,7 +317,47 @@ fun firstDuplicateIndex(str: String): Int = TODO()
  * или пустую строку при нарушении формата строки.
  * Все цены должны быть положительными
  */
-fun mostExpensive(description: String): String = TODO()
+fun mostExpensive(description: String): String {
+    if (description.length == 0) return ""
+    val numbers = '0'..'9'
+    val parts = description.split(" ")
+    var productBuf = ""
+    var resultProduct = ""
+    var priceBuf = "0.0"
+    var bestPrice = 0.0
+    var type = 1
+    //1 - число, -1 - %%-
+    for (part in parts) {
+        when {
+            type == 1 -> productBuf = part
+
+            type == -1 -> {
+                priceBuf = ""
+                if(!((part[part.length - 1] == ';') ||
+                        ((part == parts[parts.count() - 1]) && (productBuf == parts[parts.count() - 2])))) return ""
+                if (part[part.length - 1] == '.') return ""
+                var dotCheck = false
+
+                for (symbol in 0..(part.length - 2))
+                    when{
+                        part[symbol] in numbers -> priceBuf += part[symbol].toString()
+                        part[symbol] == '.' -> {
+                            if (!dotCheck) dotCheck = true else return ""
+                            priceBuf += "."
+                        }
+                        else -> return ""
+                    }
+            }
+        }
+
+        if ((bestPrice < priceBuf.toDouble()) && (type == -1)) {
+            bestPrice = priceBuf.toDouble()
+            resultProduct = productBuf
+        }
+        type *= (-1)
+    }
+    return resultProduct
+}
 
 /**
  * Сложная

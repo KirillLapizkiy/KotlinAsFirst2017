@@ -254,13 +254,7 @@ fun convert(n: Int, base: Int): List<Int> {
  */
 fun convertToString(n: Int, base: Int): String {
     var cloneN = n
-    val alphabet = listOf<Char>('0', '1', '2', '3', '4',
-            '5', '6', '7', '8', '9',
-            'a', 'b', 'c', 'd', 'e',
-            'f', 'g', 'h', 'i', 'j',
-            'k', 'l', 'm', 'n', 'o',
-            'p', 'q', 'r', 's', 't',
-            'u', 'v', 'w', 'x', 'y', 'z')
+    val alphabet = (('0'..'9') + ('a'..'z'))
     if (n < base) return alphabet[n].toString()
     var string = ""
     while (cloneN / base != 0) {
@@ -299,13 +293,7 @@ fun decimal(digits: List<Int>, base: Int): Int {
  */
 fun decimalFromString(str: String, base: Int): Int {
     var sum = 0
-    val alphabet = listOf<Char>('0', '1', '2', '3', '4',
-            '5', '6', '7', '8', '9',
-            'a', 'b', 'c', 'd', 'e',
-            'f', 'g', 'h', 'i', 'j',
-            'k', 'l', 'm', 'n', 'o',
-            'p', 'q', 'r', 's', 't',
-            'u', 'v', 'w', 'x', 'y', 'z')
+    val alphabet = (('0'..'9') + ('a'..'z'))
     var degree = str.length - 1
     for (elem in str) {
         sum += alphabet.indexOf(elem) * Math.pow(base.toDouble(), degree.toDouble()).toInt()
