@@ -408,4 +408,113 @@ fun fromRoman(roman: String): Int = TODO()
  * IllegalArgumentException должен бросаться даже если ошибочная команда не была достигнута в ходе выполнения.
  *
  */
-fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> = TODO()
+fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
+    var positionId = Math.ceil((cells / 2).toDouble()).toInt()
+    val cellRow = mutableListOf<Int>()
+    for (i in 0..(cells - 1)) cellRow.add(0)
+    var i = 0
+    var k = 0
+    var braceBalance = 0
+    fun bodyCycleSizeFun(): Int{
+        var z = 0
+        while (commands[k + z] != ']') {
+            ++z
+            if (commands[k + z] == '[') z += bodyCycleSizeFun()
+        }
+        return z
+    }
+    fun Cycle() {
+        var cycleDeactivated = false
+        var cycleBodySize = 0
+        while (!(cycleDeactivated) && (i < limit)) {
+            when {
+                commands[k] == '>' -> {
+                    if (positionId + 1 >= cells) throw IllegalStateException() else positionId += 1
+                }
+                commands[k] == '<' -> {
+                    if (positionId - 1 < 0) throw IllegalStateException() else positionId -= 1
+                }
+                commands[k] == '+' -> {
+                    cellRow[positionId] += 1
+                }
+                commands[k] == '-' -> {
+                    cellRow[positionId] -= 1
+                }
+                commands[k] == '[' -> {
+                    braceBalance += 1
+                    cycleBodySize += bodyCycleSizeFun()
+                    if (cellRow[positionId] != 0) {
+                        ++k;Cycle()
+                    } else {
+                        while (commands[k] != ']') ++k
+                        braceBalance -= 1
+                    }
+                }
+                commands[k] == ']' -> {
+
+                    if (cellRow[positionId] != 0) {
+                        while (cycleBodySize > -1) {
+                            --k
+                            --cycleBodySize
+                        }
+
+                    } else {
+                        cycleDeactivated = true
+                        --k
+                        braceBalance -= 1
+                    }
+                }
+                commands[k] == ' ' -> null
+                else -> throw IllegalArgumentException()
+            }
+            cycleBodySize += 1
+            ++k
+            ++i
+        }
+    }
+    while (i < limit) {
+        when {
+            commands[k] == '>' -> {
+                if (positionId + 1 >= cells) throw IllegalStateException() else positionId += 1
+            }
+            commands[k] == '<' -> {
+                if (positionId - 1 < 0) throw IllegalStateException() else positionId -= 1
+            }
+            commands[k] == '+' -> {
+                cellRow[positionId] += 1
+            }
+            commands[k] == '-' -> {
+                cellRow[positionId] -= 1
+            }
+            commands[k] == '[' -> {
+                braceBalance += 1
+                ++i
+                if (cellRow[positionId] != 0) {
+                    ++k
+                    Cycle()
+                    --i
+                    --braceBalance
+                } else {
+                    while (commands[k] != ']') ++k
+                    braceBalance -= 1
+                }
+            }
+            commands[k] == ']' -> {
+                braceBalance -= 1
+                if (cellRow[positionId] != 0) {
+                    while (commands[k] != '[') {
+                        --k
+                    }
+                }
+            }
+            commands[k] == ' ' -> null
+            else -> throw IllegalArgumentException()
+        }
+        ++k
+        ++i
+        if (k >= commands.count()) return cellRow
+    }
+
+    if (braceBalance != 0) throw IllegalArgumentException()
+    return cellRow
+}
