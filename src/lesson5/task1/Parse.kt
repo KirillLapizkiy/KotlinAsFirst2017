@@ -127,7 +127,9 @@ fun flattenPhoneNumber(phone: String): String {
             for (symbol in phone)
                 when {
                     (symbol in numbers) -> result += symbol.toString()
-                    (symbol == ')') || (symbol == '(') || (symbol == '-') || (symbol == '+') || (symbol == ' ') -> null
+                    (symbol == ')') || (symbol == '(')
+                        || (symbol == '-') || (symbol == '+')
+                        || (symbol == ' ') -> null
                     else -> return ""
                 }
             return result
@@ -138,7 +140,9 @@ fun flattenPhoneNumber(phone: String): String {
             for (symbol in phone)
                 when {
                     (symbol in numbers) -> result += symbol.toString()
-                    (symbol == ')') || (symbol == '(') || (symbol == '-') || (symbol == '+') || (symbol == ' ') -> null
+                    (symbol == ')') || (symbol == '(')
+                        || (symbol == '-') || (symbol == '+')
+                        || (symbol == ' ') -> null
                     else -> return ""
                 }
             return result
@@ -296,7 +300,7 @@ fun firstDuplicateIndex(str: String): Int {
         for(j in i..partsCount){
             if(parts[n] == parts[j]) {
                 symbolsCount = 0
-                for (k in 0..(i - 1)) symbolsCount += parts[k].length /////////////ask for the help/////////////
+                for (k in 0..(i - 1)) symbolsCount += parts[k].length
                 symbolsCount -= parts[i - 1].length
                 symbolsCount += i - 1
             }
@@ -334,7 +338,8 @@ fun mostExpensive(description: String): String {
             type == -1 -> {
                 priceBuf = ""
                 if(!((part[part.length - 1] == ';') ||
-                        ((part == parts[parts.count() - 1]) && (productBuf == parts[parts.count() - 2])))) return ""
+                        ((part == parts[parts.count() - 1]) &&
+                        (productBuf == parts[parts.count() - 2])))) return ""
                 if (part[part.length - 1] == '.') return ""
                 var dotCheck = false
 
@@ -370,7 +375,59 @@ fun mostExpensive(description: String): String {
  *
  * Вернуть -1, если roman не является корректным римским числом
  */
-fun fromRoman(roman: String): Int = TODO()
+fun fromRoman(roman: String): Int {
+    var result = 0
+    var i = 0
+    while (i <= roman.length - 1){
+        when{
+            roman[i] == 'M' -> result += 1000
+            roman[i] == 'C' -> {
+                when {
+                    roman[i + 1] == 'M' -> {result += 900; ++i}
+                    roman[i + 1] == 'D' -> {result += 400; ++i}
+                    else -> result += 100
+                }
+            }
+            roman[i] == 'D' -> result += 500
+            roman[i] == 'X' -> {
+                when{
+                    roman[i + 1] == 'C' -> {result += 90; ++i}
+                    roman[i + 1] == 'L' -> {result += 40; ++i}
+                    else -> result += 10
+                }
+            }
+            roman[i] == 'L' -> result += 50
+            roman[i] == 'V' -> {
+                result += 5
+                var k = 1
+                println(roman.length)
+                while ((k < 3) && (roman[i+k] == 'I') && (i + 1 != roman.length - 1)){
+                    ++result
+                    ++k
+                    ++i
+                }
+            }
+            roman[i] == 'I' -> {
+                if (i == roman.length - 1) return result + 1 else {
+                    var k = 1
+                    var minusOnes = 1
+                    while (k + i <= roman.length - 1) {
+                        when{
+                            roman[i + k] == 'X' -> result += 10 - minusOnes
+                            roman[i + k] == 'V' -> result += 5 - minusOnes
+                            roman[i + k] == 'I' -> {result += 1; ++minusOnes}
+                        }
+                        ++k
+                    }
+                    return result
+                }
+            }
+            else -> return -1
+        }
+        ++i
+    }
+    return result
+}
 
 /**
  * Очень сложная
