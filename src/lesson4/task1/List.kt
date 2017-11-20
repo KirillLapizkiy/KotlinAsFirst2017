@@ -4,6 +4,7 @@ package lesson4.task1
 
 import lesson1.task1.discriminant
 import lesson3.task1.digitNumber
+import java.lang.Math.*
 
 /**
  * Пример
@@ -108,8 +109,8 @@ fun buildSumExample(list: List<Int>) = list.joinToString(separator = " + ", post
  * по формуле abs = sqrt(a1^2 + a2^2 + ... + aN^2).
  * Модуль пустого вектора считать равным 0.0.
  */
-fun abs(v: List<Double>): Double = if (v.size == 0) 0.0 else Math.sqrt(v.map { it * it }.sum())
-
+fun abs(v: List<Double>): Double = sqrt(v.map { it * it }.sum())
+//if (v.size == 0) 0.0 else
 /**
  * Простая
  *
@@ -155,11 +156,9 @@ fun times(a: List<Double>, b: List<Double>): Double {
  * Значение пустого многочлена равно 0.0 при любом x.
  */
 fun polynom(p: List<Double>, x: Double): Double {
-    var degree = 0.0
     var sum = 0.0
     for (i in 0 until p.size) {
-        sum += p[i] * Math.pow(x, degree)
-        ++degree
+        sum += p[i] * Math.pow(x, i.toDouble())
     }
     return sum
 }
@@ -186,7 +185,8 @@ fun accumulate(list: MutableList<Double>): MutableList<Double> {
 /**
  * Средняя
  *
- * Разложить заданное натуральное число n > 1 на простые множители.
+ * Разложить заданное натуральное число
+ * n > 1 на простые множители.
  * Результат разложения вернуть в виде списка множителей, например 75 -> (3, 5, 5).
  * Множители в списке должны располагаться по возрастанию.
  */
@@ -194,14 +194,24 @@ fun factorize(n: Int): List<Int> {
     val list = mutableListOf<Int>()
     var j = 2
     var cloneN = n
+    while (j <= min(n,9)) {
+        if (cloneN % j == 0) {
+            cloneN /= j
+            list.add(j)
+            --j
+        }
+        ++j
+    }
+    ++j
     while (j <= cloneN) {
         if (cloneN % j == 0) {
             cloneN /= j
             list.add(j)
-            j = 1
+            j -= 2
         }
-        ++j
+        j += 2
     }
+
     return list
 }
 
@@ -212,13 +222,13 @@ fun factorize(n: Int): List<Int> {
  * Результат разложения вернуть в виде строки, например 75 -> 3*5*5
  */
 fun factorizeToString(n: Int): String {
-    var string = ""
+    var string = StringBuilder("")
     var j = 2
     var cloneN = n
     while (j <= cloneN) {
         if (cloneN % j == 0) {
             cloneN /= j
-            string += "$j*"
+            string.append("$j*")
             j = 1
         }
         ++j
