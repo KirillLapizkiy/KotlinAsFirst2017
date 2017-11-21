@@ -363,38 +363,26 @@ fun russian(n: Int): String {
     val rus100 = listOf("", "сто", "двести", "триста", "четыреста", "пятьсот", "шестьсот",
             "семьсот", "восемьсот", "девятьсот")
     val string = mutableListOf<String>()
-
+    fun constructing(buf: Int){
+        string.add(rus100[buf / 100])
+        when {
+            buf % 10 == 0 -> string.add(rus10[(buf % 100) / 10])
+            ((buf % 100) > 10) && ((buf % 100) < 20) -> string.add(rus11[(buf % 100) - 10])
+            else -> {
+                string.add(rus10[(buf % 100) / 10])
+                if(buf == n / 1000) string.add(rus1thous[buf % 10])
+                    else string.add(rus1[buf % 10])
+            }
+        }
+    }
     if (n > 999){
             val buf = n / 1000
-            string.add(rus100[buf / 100])
-            when {
-                buf % 100 == 0 -> {
-                    string.add("тысяч")
-                }
-                buf % 10 == 0 -> {
-                    string.add(rus10[(buf % 100) / 10])
-                    string.add("тысяч")
-                }
-                ((buf % 100) > 10) && ((buf % 100) < 20) -> {
-                    string.add(rus11[(buf % 100) - 10])
-                    string.add("тысяч")
-                }
-                else -> {
-                    string.add(rus10[(buf % 100) / 10])
-                    string.add(rus1thous[buf % 10])
-                }
-            }
+            constructing(buf)
+            if ((((buf % 100) > 10) && ((buf % 100) < 20))
+                    ||(buf % 10 == 0)) string.add("тысяч")
     }
 
     val buf = n % 1000
-    string.add(rus100[buf / 100])
-    when {
-        buf % 10 == 0 -> string.add(rus10[(buf % 100) / 10])
-        (buf % 100) > 10 && (buf % 100) < 20 -> string.add(rus11[(buf % 100) - 10])
-        else -> {
-            string.add(rus10[(buf % 100) / 10])
-            string.add(rus1[buf % 10])
-        }
-    }
+    constructing(buf)
     return string.filter { it != "" }.joinToString(separator = " ")
 }
