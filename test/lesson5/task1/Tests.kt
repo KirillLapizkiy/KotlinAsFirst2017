@@ -38,6 +38,8 @@ class Tests {
         assertEquals("18.11.2018", dateStrToDigit("18 ноября 2018"))
         assertEquals("", dateStrToDigit("23"))
         assertEquals("03.04.2011", dateStrToDigit("3 апреля 2011"))
+        assertEquals("", dateStrToDigit("a апреля 2011"))
+
     }
 
     @Test
@@ -63,6 +65,7 @@ class Tests {
     @Test
     @Tag("Normal")
     fun bestLongJump() {
+        assertEquals(2147483647, bestLongJump("2147483647 2147483647  -   -"))
         assertEquals(717, bestLongJump("706 % - 717 - 703"))
         assertEquals(-1, bestLongJump("% - - % -"))
         assertEquals(754, bestLongJump("700 717 707 % 754"))
