@@ -172,7 +172,8 @@ fun bestLongJump(jumps: String): Int {
                 else -> return -1
             }
         }
-        if ((isItNumber)&&(buf.toString().toInt() > bestScore)) bestScore = buf.toString().toInt()
+        if ((isItNumber)&&(buf.toString().toInt() > bestScore))
+            bestScore = buf.toString().toInt()
         buf.delete(0, buf.length)
         isItNumber = false
     }
@@ -190,35 +191,40 @@ fun bestLongJump(jumps: String): Int {
 * При нарушении формата входной строки вернуть -1.
 */
 fun bestHighJump(jumps: String): Int {
-if (jumps.length == 0) return -1
-val numbers = '0'..'9'
-val allowedSymbols = listOf('%', '-', '+')
-val parts = jumps.split(" ")
-var buf = ""
-var bestScore = -1
-var type = 1
-var counted = false
-//1 - число, -1 - %%-
-for (part in parts) {
-    when {
-        type == 1 -> {
-            buf = ""
-            for (symbol in part)
-                if (symbol in numbers) buf += symbol.toString() else return -1
+    if (jumps.length == 0) return -1
+    val allowedSymbols = listOf('%', '-', '+')
+    val parts = jumps.split(" ")
+    val buf = StringBuilder("")
+    var bestScore = -1
+    var type = 1
+    var counted = false
+    //1 - число, -1 - %%-
+    for (part in parts) {
+        when {
+            type == 1 -> {
+                buf.delete(0, buf.length)
+                for (symbol in part)
+                    if (symbol in '0'..'9') buf.append(symbol.toString())
+                    else return -1
+            }
+            type == -1 -> {
+                var missed = 0
+                for (symbol in part)
+                    if (symbol in allowedSymbols)
+                        when {
+                            symbol == '-' -> counted = false
+                            symbol == '+' -> counted = true
+                            symbol == '%' -> ++missed
+                        }
+                    else return -1
+                if (missed == part.length) counted = false
+            }
         }
-        type == -1 -> {
-            for (symbol in part)
-                if (symbol !in allowedSymbols) return -1 else
-                    when {
-                        symbol == '-' -> counted = false
-                        symbol == '+' -> counted = true
-                    }
-        }
+        if (counted && (buf.toString().toInt() > bestScore) &&
+           (type == -1)) bestScore = buf.toString().toInt()
+        type *= (-1)
     }
-    if (counted && (buf.toInt() > bestScore) && (type == -1)) bestScore = buf.toInt()
-    type *= (-1)
-}
-return bestScore
+    return bestScore
 }
 
 /**
@@ -231,48 +237,48 @@ return bestScore
 * Про нарушении формата входной строки бросить исключение IllegalArgumentException
 */
 fun plusMinus(expression: String): Int {
-if (expression.length == 0) return -1
-val numbers = '0'..'9'
-val allowedSymbols = listOf("%", "-", "+")
-val parts = expression.split(" ")
-var buf = ""
-var result = 0
-var type = 1
-var plus = true
-for (part in parts) {
-    when {
-        type == 1 -> {
-            for (symbol in part) {
-                buf = ""
-                if (symbol in numbers) buf += symbol.toString() else
-                    IllegalArgumentException("Выражение введено некорректно. " +
-                            "Введите его правильно, как в этом примере: \"2 + 31 - 40 + 13\"")
-            }
-        }
-        type == -1 -> {
-            if ((part.length > 1) || (part !in allowedSymbols))
-                IllegalArgumentException("Выражение введено некорректно. " +
-                        "Введите его правильно, как в этом примере: \"2 + 31 - 40 + 13\"") else
-                when {
-                    part == "+" -> plus = true
-                    part == "-" -> plus = false
-                }
-        }
-    }
-    if (type == 1)
+    if (expression.length == 0) return -1
+    val numbers = '0'..'9'
+    val allowedSymbols = listOf("%", "-", "+")
+    val parts = expression.split(" ")
+    var buf = ""
+    var result = 0
+    var type = 1
+    var plus = true
+    for (part in parts) {
         when {
-            plus -> {
-                result += buf.toInt()
-                buf = ""
+            type == 1 -> {
+                for (symbol in part) {
+                    buf = ""
+                    if (symbol in numbers) buf += symbol.toString() else
+                        IllegalArgumentException("Выражение введено некорректно. " +
+                                "Введите его правильно, как в этом примере: \"2 + 31 - 40 + 13\"")
+                }
             }
-            else -> {
-                result -= buf.toInt()
-                buf = ""
+            type == -1 -> {
+                if ((part.length > 1) || (part !in allowedSymbols))
+                    IllegalArgumentException("Выражение введено некорректно. " +
+                            "Введите его правильно, как в этом примере: \"2 + 31 - 40 + 13\"") else
+                    when {
+                        part == "+" -> plus = true
+                        part == "-" -> plus = false
+                    }
             }
         }
-    type *= -1
-}
-return result
+        if (type == 1)
+            when {
+                plus -> {
+                    result += buf.toInt()
+                    buf = ""
+                }
+                else -> {
+                    result -= buf.toInt()
+                    buf = ""
+                }
+            }
+        type *= -1
+    }
+    return result
 }
 
 /**
@@ -285,23 +291,23 @@ return result
 * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
 */
 fun firstDuplicateIndex(str: String): Int {
-if (str.length == 0) return -1
-val parts = str.toLowerCase().split(" ")
-var i = 1
-val partsCount = parts.count() - 1
-var symbolsCount = -1
-for (n in 0 until parts.count()){
-    for(j in i..partsCount){
-        if(parts[n] == parts[j]) {
-            symbolsCount = 0
-            for (k in 0..(i - 1)) symbolsCount += parts[k].length
-            symbolsCount -= parts[i - 1].length
-            symbolsCount += i - 1
+    if (str.length == 0) return -1
+    val parts = str.toLowerCase().split(" ")
+    var result = 0
+    var i = 0
+    var wordFound = false
+    while(i < parts.count() - 2){
+        if (parts[i].toLowerCase() == parts[i + 1].toLowerCase()) {
+            wordFound = true
+            break
         }
+        ++i
     }
-    ++i
-}
-return symbolsCount
+    if (wordFound) {
+        for (j in 0 until i) result += parts[j].length + 1 //учитывая пробел
+        return result
+    }
+    else return -1
 }
 
 /**
@@ -316,46 +322,50 @@ return symbolsCount
 * Все цены должны быть положительными
 */
 fun mostExpensive(description: String): String {
-if (description.length == 0) return ""
-val numbers = '0'..'9'
-val parts = description.split(" ")
-var productBuf = ""
-var resultProduct = ""
-var priceBuf = "0.0"
-var bestPrice = 0.0
-var type = 1
-//1 - число, -1 - %%-
-for (part in parts) {
-    when {
-        type == 1 -> productBuf = part
-
-        type == -1 -> {
-            priceBuf = ""
-            if(!((part[part.length - 1] == ';') ||
-                    ((part == parts[parts.count() - 1]) &&
-                    (productBuf == parts[parts.count() - 2])))) return ""
-            if (part[part.length - 1] == '.') return ""
-            var dotCheck = false
-
-            for (symbol in 0..(part.length - 2))
-                when{
-                    part[symbol] in numbers -> priceBuf += part[symbol].toString()
-                    part[symbol] == '.' -> {
-                        if (!dotCheck) dotCheck = true else return ""
-                        priceBuf += "."
-                    }
-                    else -> return ""
+    if (description.length == 0) return ""
+    val parts = description.split(" ")
+    val productBuf = StringBuilder("")
+    val resultProduct = StringBuilder("")
+    val priceBuf = StringBuilder("0.0")
+    var bestPrice = 0.0
+    var type = 1
+    //1 - число, -1 - %%-
+    for (part in parts) {
+        when {
+            type == 1 -> {
+                try {
+                    productBuf.delete(0, productBuf.length)
+                    productBuf.append(part)
                 }
-        }
-    }
+                catch(e:NumberFormatException){return ""}
+            }
 
-    if ((bestPrice < priceBuf.toDouble()) && (type == -1)) {
-        bestPrice = priceBuf.toDouble()
-        resultProduct = productBuf
+            type == -1 -> {
+                priceBuf.delete(0, priceBuf.length)
+                if ((part[part.length - 1] != ';')&&(part != parts[parts.count() - 1]) || (part[part.length - 1] == '.'))
+                    return ""
+                var dotCheck = false
+
+                for (symbol in 0..(part.length - 2))
+                    when{
+                        part[symbol] in '0'..'9' -> priceBuf.append(part[symbol].toString())
+                        part[symbol] == '.' -> {
+                            if (!dotCheck) dotCheck = true else return ""
+                            priceBuf.append(".")
+                        }
+                        else -> return ""
+                    }
+            }
+        }
+
+        if ((bestPrice < priceBuf.toString().toDouble()) && (type == -1)) {
+            bestPrice = priceBuf.toString().toDouble()
+            resultProduct.delete(0, resultProduct.length)
+            resultProduct.append(productBuf)
+        }
+        type *= (-1)
     }
-    type *= (-1)
-}
-return resultProduct
+    return resultProduct.toString()
 }
 
 /**
@@ -370,57 +380,57 @@ return resultProduct
 * Вернуть -1, если roman не является корректным римским числом
 */
 fun fromRoman(roman: String): Int {
-var result = 0
-var i = 0
-while (i <= roman.length - 1){
-    when{
-        roman[i] == 'M' -> result += 1000
-        roman[i] == 'C' -> {
-            when {
-                roman[i + 1] == 'M' -> {result += 900; ++i}
-                roman[i + 1] == 'D' -> {result += 400; ++i}
-                else -> result += 100
-            }
-        }
-        roman[i] == 'D' -> result += 500
-        roman[i] == 'X' -> {
-            when{
-                roman[i + 1] == 'C' -> {result += 90; ++i}
-                roman[i + 1] == 'L' -> {result += 40; ++i}
-                else -> result += 10
-            }
-        }
-        roman[i] == 'L' -> result += 50
-        roman[i] == 'V' -> {
-            result += 5
-            var k = 1
-            println(roman.length)
-            while ((k < 3) && (roman[i+k] == 'I') && (i + 1 != roman.length - 1)){
-                ++result
-                ++k
-                ++i
-            }
-        }
-        roman[i] == 'I' -> {
-            if (i == roman.length - 1) return result + 1 else {
-                var k = 1
-                var minusOnes = 1
-                while (k + i <= roman.length - 1) {
-                    when{
-                        roman[i + k] == 'X' -> result += 10 - minusOnes
-                        roman[i + k] == 'V' -> result += 5 - minusOnes
-                        roman[i + k] == 'I' -> {result += 1; ++minusOnes}
-                    }
-                    ++k
+    var result = 0
+    var i = 0
+    while (i <= roman.length - 1){
+        when{
+            roman[i] == 'M' -> result += 1000
+            roman[i] == 'C' -> {
+                when {
+                    roman[i + 1] == 'M' -> {result += 900; ++i}
+                    roman[i + 1] == 'D' -> {result += 400; ++i}
+                    else -> result += 100
                 }
-                return result
             }
+            roman[i] == 'D' -> result += 500
+            roman[i] == 'X' -> {
+                when{
+                    roman[i + 1] == 'C' -> {result += 90; ++i}
+                    roman[i + 1] == 'L' -> {result += 40; ++i}
+                    else -> result += 10
+                }
+            }
+            roman[i] == 'L' -> result += 50
+            roman[i] == 'V' -> {
+                result += 5
+                var k = 1
+                println(roman.length)
+                while ((k < 3) && (roman[i+k] == 'I') && (i + 1 != roman.length - 1)){
+                    ++result
+                    ++k
+                    ++i
+                }
+            }
+            roman[i] == 'I' -> {
+                if (i == roman.length - 1) return result + 1 else {
+                    var k = 1
+                    var minusOnes = 1
+                    while (k + i <= roman.length - 1) {
+                        when{
+                            roman[i + k] == 'X' -> result += 10 - minusOnes
+                            roman[i + k] == 'V' -> result += 5 - minusOnes
+                            roman[i + k] == 'I' -> {result += 1; ++minusOnes}
+                        }
+                        ++k
+                    }
+                    return result
+                }
+            }
+            else -> return -1
         }
-        else -> return -1
+        ++i
     }
-    ++i
-}
-return result
+    return result
 }
 
 /**
@@ -460,24 +470,70 @@ return result
 *
 */
 fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
-var positionId = Math.ceil((cells / 2).toDouble()).toInt()
-val cellRow = mutableListOf<Int>()
-for (i in 0..(cells - 1)) cellRow.add(0)
-var i = 0
-var k = 0
-var braceBalance = 0
-fun bodyCycleSizeFun(): Int{
-    var z = 0
-    while (commands[k + z] != ']') {
-        ++z
-        if (commands[k + z] == '[') z += bodyCycleSizeFun()
-    }
-    return z
+    var positionId = Math.ceil((cells / 2).toDouble()).toInt()
+    val cellRow = mutableListOf<Int>()
+    for (i in 0..(cells - 1)) cellRow.add(0)
+    var i = 0
+    var k = 0
+    var braceBalance = 0
+    fun bodyCycleSizeFun(): Int{
+        var z = 0
+        while (commands[k + z] != ']') {
+            ++z
+            if (commands[k + z] == '[') z += bodyCycleSizeFun()
+        }
+        return z
 }
-fun Cycle() {
-    var cycleDeactivated = false
-    var cycleBodySize = 0
-    while (!(cycleDeactivated) && (i < limit)) {
+    fun Cycle() {
+        var cycleDeactivated = false
+        var cycleBodySize = 0
+        while (!(cycleDeactivated) && (i < limit)) {
+            when {
+                commands[k] == '>' -> {
+                    if (positionId + 1 >= cells) throw IllegalStateException() else positionId += 1
+                }
+                commands[k] == '<' -> {
+                    if (positionId - 1 < 0) throw IllegalStateException() else positionId -= 1
+                }
+                commands[k] == '+' -> {
+                    cellRow[positionId] += 1
+                }
+                commands[k] == '-' -> {
+                    cellRow[positionId] -= 1
+                }
+                commands[k] == '[' -> {
+                    braceBalance += 1
+                    cycleBodySize += bodyCycleSizeFun()
+                    if (cellRow[positionId] != 0) {
+                        ++k;Cycle()
+                    } else {
+                        while (commands[k] != ']') ++k
+                        braceBalance -= 1
+                    }
+                }
+                commands[k] == ']' -> {
+
+                    if (cellRow[positionId] != 0) {
+                        while (cycleBodySize > -1) {
+                            --k
+                            --cycleBodySize
+                        }
+
+                    } else {
+                        cycleDeactivated = true
+                        --k
+                        braceBalance -= 1
+                    }
+                }
+                commands[k] == ' ' -> null
+                else -> throw IllegalArgumentException()
+            }
+            cycleBodySize += 1
+            ++k
+            ++i
+        }
+    }
+    while (i < limit) {
         when {
             commands[k] == '>' -> {
                 if (positionId + 1 >= cells) throw IllegalStateException() else positionId += 1
@@ -493,79 +549,33 @@ fun Cycle() {
             }
             commands[k] == '[' -> {
                 braceBalance += 1
-                cycleBodySize += bodyCycleSizeFun()
+                ++i
                 if (cellRow[positionId] != 0) {
-                    ++k;Cycle()
+                    ++k
+                    Cycle()
+                    --i
+                    --braceBalance
                 } else {
                     while (commands[k] != ']') ++k
                     braceBalance -= 1
                 }
             }
             commands[k] == ']' -> {
-
+                braceBalance -= 1
                 if (cellRow[positionId] != 0) {
-                    while (cycleBodySize > -1) {
+                    while (commands[k] != '[') {
                         --k
-                        --cycleBodySize
                     }
-
-                } else {
-                    cycleDeactivated = true
-                    --k
-                    braceBalance -= 1
                 }
             }
             commands[k] == ' ' -> null
             else -> throw IllegalArgumentException()
         }
-        cycleBodySize += 1
         ++k
         ++i
+        if (k >= commands.count()) return cellRow
     }
-}
-while (i < limit) {
-    when {
-        commands[k] == '>' -> {
-            if (positionId + 1 >= cells) throw IllegalStateException() else positionId += 1
-        }
-        commands[k] == '<' -> {
-            if (positionId - 1 < 0) throw IllegalStateException() else positionId -= 1
-        }
-        commands[k] == '+' -> {
-            cellRow[positionId] += 1
-        }
-        commands[k] == '-' -> {
-            cellRow[positionId] -= 1
-        }
-        commands[k] == '[' -> {
-            braceBalance += 1
-            ++i
-            if (cellRow[positionId] != 0) {
-                ++k
-                Cycle()
-                --i
-                --braceBalance
-            } else {
-                while (commands[k] != ']') ++k
-                braceBalance -= 1
-            }
-        }
-        commands[k] == ']' -> {
-            braceBalance -= 1
-            if (cellRow[positionId] != 0) {
-                while (commands[k] != '[') {
-                    --k
-                }
-            }
-        }
-        commands[k] == ' ' -> null
-        else -> throw IllegalArgumentException()
-    }
-    ++k
-    ++i
-    if (k >= commands.count()) return cellRow
-}
 
-if (braceBalance != 0) throw IllegalArgumentException()
-return cellRow
+    if (braceBalance != 0) throw IllegalArgumentException()
+    return cellRow
 }
