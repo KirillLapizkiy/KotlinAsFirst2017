@@ -158,7 +158,7 @@ fun times(a: List<Double>, b: List<Double>): Double {
 fun polynom(p: List<Double>, x: Double): Double {
     var sum = 0.0
     for (i in 0 until p.size) {
-        sum += p[i] * Math.pow(x, i.toDouble())
+        sum += p[i] * pow(x, i.toDouble())
     }
     return sum
 }
@@ -194,13 +194,9 @@ fun factorize(n: Int): List<Int> {
     val list = mutableListOf<Int>()
     var j = 2
     var cloneN = n
-    while (j <= min(n,9)) {
-        if (cloneN % j == 0) {
-            cloneN /= j
-            list.add(j)
-            --j
-        }
-        ++j
+    if (cloneN % j == 0) {
+        cloneN /= j
+        list.add(j)
     }
     ++j
     while (j <= cloneN) {
@@ -211,17 +207,15 @@ fun factorize(n: Int): List<Int> {
         }
         j += 2
     }
-
     return list
 }
-
 /**
  * Сложная
  *
  * Разложить заданное натуральное число n > 1 на простые множители.
  * Результат разложения вернуть в виде строки, например 75 -> 3*5*5
  */
-fun factorizeToString(n: Int): String = factorize(n).joinToString(separator = "*", postfix = "")
+fun factorizeToString(n: Int): String = factorize(n).joinToString(separator = "*")
 
 /** Средняя
  *
@@ -230,6 +224,7 @@ fun factorizeToString(n: Int): String = factorize(n).joinToString(separator = "*
  * например: n = 100, base = 4 -> (1, 2, 1, 0) или n = 250, base = 14 -> (1, 3, 12)
  */
 fun convert(n: Int, base: Int): List<Int> {
+    if (n == 0) return listOf(0)
     var cloneN = n
     val list = mutableListOf<Int>()
     while (cloneN != 0) {
@@ -266,7 +261,7 @@ fun decimal(digits: List<Int>, base: Int): Int {
     var sum = 0
     var degree = digits.size - 1
     for (elem in digits) {
-        sum += elem * Math.pow(base.toDouble(), degree.toDouble()).toInt()
+        sum += elem * pow(base.toDouble(), degree.toDouble()).toInt()
         --degree
     }
     return sum
@@ -302,44 +297,21 @@ fun decimalFromString(str: String, base: Int): Int {
  */
 fun roman(n: Int): String {
     var buf = n
-    var result = StringBuilder("")
+    val result = StringBuilder("")
     val roman = listOf("", "I", "II", "III", "IV",
             "V", "VI", "VII", "VIII", "IX")
-    while (buf >= 1000) {
-        buf -= 1000
-        result.append("M")
-    }
-    if (buf - 900 >= 0) {
-        buf -= 900
-        result.append("CM")
-    }
-    if (buf - 500 >= 0) {
-        buf -= 500
-        result.append("D")
-    }
-    if (buf - 400 >= 0) {
-        buf -= 400
-        result.append("CD")
-    }
-    while (buf >= 100) {
-        buf -= 100
-        result.append("C")
-    }
-    if (buf - 90 >= 0) {
-        buf -= 90
-        result.append("XC")
-    }
-    if (buf - 50 >= 0) {
-        buf -= 50
-        result.append("L")
-    }
-    if (buf - 40 >= 0) {
-        buf -= 40
-        result.append("XL")
-    }
-    while (buf >= 10) {
-        buf -= 10
-        result.append("X")
+    val bigRomanNumbers = listOf("M","CM","D","CD","C","XC","L","XL","X")
+    val bigNumbers = listOf(1000, 900, 500, 400, 100, 90, 50, 40, 10)
+    var numberType = 0
+    var romanType = 0
+    while(buf > 9){
+        while(buf - bigNumbers[numberType] >= 0){
+            buf -= bigNumbers[numberType]
+            result.append(bigRomanNumbers[romanType])
+        }
+        ++numberType
+        ++romanType
+        println(result)
     }
     result.append(roman[buf])
     return result.toString()
@@ -353,6 +325,22 @@ fun roman(n: Int): String {
  * 23964 = "двадцать три тысячи девятьсот шестьдесят четыре"
  */
 fun russian(n: Int): String {
+    val string = mutableListOf<String>()
+    if (n > 999) {
+        val isItJuniorPart = false
+        val buf = n / 1000
+        string += constructing(buf, isItJuniorPart)
+        if ((((buf % 100) > 10) && ((buf % 100) < 20))
+                || (buf % 10 == 0)) string.add("тысяч")
+    }
+
+    val isItJuniorPart = true
+    val buf = n % 1000
+    string += constructing(buf, isItJuniorPart)
+    return string.filter { it != "" }.joinToString(separator = " ")
+}
+
+fun constructing(buf: Int, isItJuniorPart: Boolean): MutableList<String>{
     val rus1 = listOf("", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять")
     val rus1thous = listOf("", "одна тысяча", "две тысячи", "три тысячи", "четыре тысячи", "пять тысяч",
             "шесть тысяч", "семь тысяч", "восемь тысяч", "девять тысяч")
@@ -362,27 +350,17 @@ fun russian(n: Int): String {
             "пятьдесят", "шестьдесят", "семьдесят", "восемьдесят", "девяносто")
     val rus100 = listOf("", "сто", "двести", "триста", "четыреста", "пятьсот", "шестьсот",
             "семьсот", "восемьсот", "девятьсот")
-    val string = mutableListOf<String>()
-    fun constructing(buf: Int){
-        string.add(rus100[buf / 100])
-        when {
-            buf % 10 == 0 -> string.add(rus10[(buf % 100) / 10])
-            ((buf % 100) > 10) && ((buf % 100) < 20) -> string.add(rus11[(buf % 100) - 10])
-            else -> {
-                string.add(rus10[(buf % 100) / 10])
-                if(buf == n / 1000) string.add(rus1thous[buf % 10])
-                    else string.add(rus1[buf % 10])
-            }
+    val string = mutableListOf<String>("")
+    string.add(rus100[buf / 100])
+    when {
+        buf % 10 == 0 -> string.add(rus10[(buf % 100) / 10])
+        ((buf % 100) > 10) && ((buf % 100) < 20) -> string.add(rus11[(buf % 100) - 10])
+        else -> {
+            string.add(rus10[(buf % 100) / 10])
+            if (!isItJuniorPart) string.add(rus1thous[buf % 10])
+            else string.add(rus1[buf % 10])
         }
     }
-    if (n > 999){
-            val buf = n / 1000
-            constructing(buf)
-            if ((((buf % 100) > 10) && ((buf % 100) < 20))
-                    ||(buf % 10 == 0)) string.add("тысяч")
-    }
-
-    val buf = n % 1000
-    constructing(buf)
-    return string.filter { it != "" }.joinToString(separator = " ")
+    return string
 }
+
