@@ -69,15 +69,13 @@ fun dateStrToDigit(str: String): String {
     val months = listOf("января", "февраля", "марта", "апреля", "мая", "июня",
             "июля", "августа", "сентября", "октября", "ноября", "декабря")
     val parts = str.split(" ")
-    var spaces = 0
-    spaces = str.count({it == ' '})
     try {
-        if ((parts.size != 3) || (parts[0].toInt() !in 1..31) ||
-                (parts[2].toInt() < 0) || (spaces != 2) || (parts[1] !in months)) return ""
+        if ((parts.count() != 3) || (parts[0].toInt() !in 1..31) || (parts[2].toInt() < 0)
+                || (parts[1] !in months)) return ""
     }
     catch(e: NumberFormatException) {return ""}
 
-    return String.format("%02d.%02d.%02d", parts[0].toInt(),
+    return String.format("%02d.%02d.%d", parts[0].toInt(),
                 months.indexOf(parts[1]) + 1, parts[2].toInt())
 
 }
@@ -94,8 +92,8 @@ fun dateDigitToStr(digital: String): String {
         "июля", "августа", "сентября", "октября", "ноября", "декабря")
     val parts = digital.split(".")
     try {
-        if ((parts[0].toInt() !in 1..31) || (parts[1].toInt() !in 1..12)
-                || (parts[2].toInt() < 0) || (digital.count({ it == '.' }) != 2)) return ""
+        if (parts.count() != 3 || (parts[0].toInt() !in 1..31)
+                || (parts[1].toInt() !in 1..12) || (parts[2].toInt() < 0)) return ""
     }
     catch(e: NumberFormatException) {return ""}
     return String.format("%d %s %s", parts[0].toInt(), months[parts[1].toInt() - 1], parts[2])
@@ -167,8 +165,7 @@ fun bestLongJump(jumps: String): Int {
                     isItNumber = true
                     buf.append(symbol.toString())
                 }
-                symbol == ' ' -> null
-                symbol in allowedSymbols -> if (isItNumber != false) return -1
+                symbol in allowedSymbols -> if (isItNumber) return -1
                 else -> return -1
             }
         }
@@ -194,35 +191,30 @@ fun bestHighJump(jumps: String): Int {
     if (jumps.length == 0) return -1
     val allowedSymbols = listOf('%', '-', '+')
     val parts = jumps.split(" ")
-    val buf = StringBuilder("")
+    var buf = 0
     var bestScore = -1
-    var type = 1
+    var isNumber = true
     var counted = false
-    //1 - число, -1 - %%-
+    //true - число, false - %%-
     for (part in parts) {
         when {
-            type == 1 -> {
-                buf.delete(0, buf.length)
-                for (symbol in part)
-                    if (symbol in '0'..'9') buf.append(symbol.toString())
-                    else return -1
+            isNumber -> {
+                buf = 0
+                try{
+                    buf += part.toInt()
+                }
+                catch(e: NumberFormatException){return -1}
             }
-            type == -1 -> {
-                var missed = 0
+            !isNumber -> {
+                counted = false
                 for (symbol in part)
-                    if (symbol in allowedSymbols)
-                        when {
-                            symbol == '-' -> counted = false
-                            symbol == '+' -> counted = true
-                            symbol == '%' -> ++missed
-                        }
-                    else return -1
-                if (missed == part.length) counted = false
+                    if(symbol == '+') counted = true
+                    else if (symbol !in allowedSymbols) return -1
             }
         }
-        if (counted && (buf.toString().toInt() > bestScore) &&
-           (type == -1)) bestScore = buf.toString().toInt()
-        type *= (-1)
+        if (counted && (buf > bestScore) &&
+           (!isNumber)) bestScore = buf
+        isNumber = !isNumber
     }
     return bestScore
 }
@@ -241,42 +233,40 @@ fun plusMinus(expression: String): Int {
     val numbers = '0'..'9'
     val allowedSymbols = listOf("%", "-", "+")
     val parts = expression.split(" ")
-    var buf = ""
+    val buf = StringBuilder("")
     var result = 0
-    var type = 1
+    var isNumber = true
     var plus = true
     for (part in parts) {
         when {
-            type == 1 -> {
+            isNumber -> {
                 for (symbol in part) {
-                    buf = ""
-                    if (symbol in numbers) buf += symbol.toString() else
-                        IllegalArgumentException("Выражение введено некорректно. " +
-                                "Введите его правильно, как в этом примере: \"2 + 31 - 40 + 13\"")
+                    buf.delete(0, buf.length)
+                    if (symbol in numbers) buf.append(symbol.toString()) else
+                        throw IllegalArgumentException()
                 }
             }
-            type == -1 -> {
-                if ((part.length > 1) || (part !in allowedSymbols))
-                    IllegalArgumentException("Выражение введено некорректно. " +
-                            "Введите его правильно, как в этом примере: \"2 + 31 - 40 + 13\"") else
+            !isNumber -> {
+                if (part !in allowedSymbols)
+                    throw IllegalArgumentException() else
                     when {
                         part == "+" -> plus = true
                         part == "-" -> plus = false
                     }
             }
         }
-        if (type == 1)
+        if (isNumber)
             when {
                 plus -> {
-                    result += buf.toInt()
-                    buf = ""
+                    result += buf.toString().toInt()
+                    buf.delete(0, buf.length)
                 }
                 else -> {
-                    result -= buf.toInt()
-                    buf = ""
+                    result -= buf.toString().toInt()
+                    buf.delete(0, buf.length)
                 }
             }
-        type *= -1
+        isNumber = !isNumber
     }
     return result
 }
@@ -296,7 +286,7 @@ fun firstDuplicateIndex(str: String): Int {
     var result = 0
     var i = 0
     var wordFound = false
-    while(i < parts.count() - 2){
+    while(i < parts.count() - 1){
         if (parts[i].toLowerCase() == parts[i + 1].toLowerCase()) {
             wordFound = true
             break
@@ -326,44 +316,31 @@ fun mostExpensive(description: String): String {
     val parts = description.split(" ")
     val productBuf = StringBuilder("")
     val resultProduct = StringBuilder("")
-    val priceBuf = StringBuilder("0.0")
+    var priceBuf = 0.0
     var bestPrice = 0.0
-    var type = 1
-    //1 - число, -1 - %%-
+    var isNumber = false
+    //true - число, false - продукт
     for (part in parts) {
         when {
-            type == 1 -> {
+            !isNumber -> {
                 try {
                     productBuf.delete(0, productBuf.length)
                     productBuf.append(part)
                 }
                 catch(e:NumberFormatException){return ""}
             }
-
-            type == -1 -> {
-                priceBuf.delete(0, priceBuf.length)
-                if ((part[part.length - 1] != ';')&&(part != parts[parts.count() - 1]) || (part[part.length - 1] == '.'))
-                    return ""
-                var dotCheck = false
-
-                for (symbol in 0..(part.length - 2))
-                    when{
-                        part[symbol] in '0'..'9' -> priceBuf.append(part[symbol].toString())
-                        part[symbol] == '.' -> {
-                            if (!dotCheck) dotCheck = true else return ""
-                            priceBuf.append(".")
-                        }
-                        else -> return ""
-                    }
+            isNumber -> {
+                if ((part[part.length - 1] != ';') && (part != parts[parts.count() - 1])
+                        || (part[part.length - 1] == '.') || (part[0] == '.')) return ""
+                priceBuf = Regex(""";""").replace(part,"").toDouble()
             }
         }
-
-        if ((bestPrice < priceBuf.toString().toDouble()) && (type == -1)) {
-            bestPrice = priceBuf.toString().toDouble()
+        if ((bestPrice <= priceBuf) && (isNumber)) {
+            bestPrice = priceBuf
             resultProduct.delete(0, resultProduct.length)
             resultProduct.append(productBuf)
         }
-        type *= (-1)
+        isNumber = !isNumber
     }
     return resultProduct.toString()
 }
@@ -375,14 +352,48 @@ fun mostExpensive(description: String): String {
 * в десятичную систему и вернуть как результат.
 * Римские цифры: 1 = I, 4 = IV, 5 = V, 9 = IX, 10 = X, 40 = XL, 50 = L,
 * 90 = XC, 100 = C, 400 = CD, 500 = D, 900 = CM, 1000 = M.
-* Например: XXIII = 23, XLIV = 44, C = 100
+* Например: XXIII = 23, XLIV = 44, C = 100, LXIV = -1
 *
 * Вернуть -1, если roman не является корректным римским числом
 */
 fun fromRoman(roman: String): Int {
     var result = 0
     var i = 0
-    while (i <= roman.length - 1){
+    if (roman.length == 0) return -1
+    //val roman1 = listOf()
+    val bigRomanNumbers = listOf("M","CM","D","CD","C","XC","L","XL",
+            "X","IX","VIII","VII","VI","V","IV","III","II", "I")
+    val bigNumbers = listOf(1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
+    val buf = StringBuilder("")
+    val bufPrevious = StringBuilder("")
+    var numberType = 0
+    var romanType = 0
+    if ((roman.length == 1) && (roman in bigRomanNumbers)) return bigNumbers[bigRomanNumbers.indexOf(roman)] else
+        if ((roman.length == 1) && (roman !in bigRomanNumbers)) return -1
+    for(symbol in roman){
+        buf.append(symbol)
+        if(buf.length == 2){
+            if (buf.toString() in bigRomanNumbers) {
+                result += bigNumbers[bigRomanNumbers.indexOf(buf.toString())]
+                bufPrevious.delete(0, 2)
+                bufPrevious.append(buf)
+                buf.delete(0,2)
+            }
+            else {
+                val buf00 = bigNumbers[bigRomanNumbers.indexOf(buf[0].toString())]
+                val buf01 = bigNumbers[bigRomanNumbers.indexOf(buf[1].toString())]
+                if((buf00 < buf01) || (buf[0].toString() !in bigRomanNumbers)
+                                   || (buf[1].toString() !in bigRomanNumbers))
+                    return -1
+                else
+                    result += buf00 + buf01
+            }
+        }
+
+    }
+
+
+    /*while (i <= roman.length - 1){
         when{
             roman[i] == 'M' -> result += 1000
             roman[i] == 'C' -> {
@@ -429,7 +440,7 @@ fun fromRoman(roman: String): Int {
             else -> return -1
         }
         ++i
-    }
+    }*/
     return result
 }
 
