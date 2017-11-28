@@ -368,8 +368,8 @@ fun fromRoman(roman: String): Int {
     val bufPrevious = StringBuilder("")
     var numberType = 0
     var romanType = 0
-    if ((roman.length == 1) && (roman in bigRomanNumbers)) return bigNumbers[bigRomanNumbers.indexOf(roman)] else
-        if ((roman.length == 1) && (roman !in bigRomanNumbers)) return -1
+    //if ((roman.length == 1) && (roman in bigRomanNumbers)) return bigNumbers[bigRomanNumbers.indexOf(roman)] else
+        //if ((roman.length == 1) && (roman !in bigRomanNumbers)) return -1
     for(symbol in roman){
         buf.append(symbol)
         if(buf.length == 2){
@@ -389,8 +389,12 @@ fun fromRoman(roman: String): Int {
                     result += buf00 + buf01
             }
         }
-
     }
+    if ((buf.length == 1) && (buf.toString() in bigRomanNumbers))
+        return bigNumbers[bigRomanNumbers.indexOf(buf.toString())]
+    else
+        if ((buf.length == 1) && (buf.toString() !in bigRomanNumbers))
+            return -1
 
 
     /*while (i <= roman.length - 1){
