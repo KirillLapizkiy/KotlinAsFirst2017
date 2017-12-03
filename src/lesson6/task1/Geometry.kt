@@ -182,21 +182,33 @@ class Line private constructor(val b: Double, val angle: Double) {
  *
  * Построить прямую по отрезку
  */
-fun lineBySegment(s: Segment): Line = TODO()
+fun lineBySegment(s: Segment): Line {
+    val b = (s.end.y * s.begin.x - (s.begin.y * s.end.x)) / ((1 - s.end.x / s.begin.x) * s.begin.x)
+    val k = if (s.begin.y != s.end.y) (s.begin.y - b) / s.begin.x else 0.0
+    val angle = if ((s.begin.x == s.end.x) && (s.begin.x == 0.0)) PI/2 else atan(k)
+    return Line(s.begin, angle)
+}
 
 /**
  * Средняя
  *
  * Построить прямую по двум точкам
  */
-fun lineByPoints(a: Point, b: Point): Line = TODO()
+fun lineByPoints(a: Point, b: Point): Line = lineBySegment(Segment(a, b))
 
 /**
  * Сложная
  *
  * Построить серединный перпендикуляр по отрезку или по двум точкам
  */
-fun bisectorByPoints(a: Point, b: Point): Line = TODO()
+fun bisectorByPoints(a: Point, b: Point): Line {
+    val B = (b.y * a.x - (a.y * b.x)) / ((1 - b.x / a.x) * a.x)
+    val midle = Point((b.x + a.x) / 2.0, (b.y + a.y) / 2.0)
+    val k = if (a.y != b.y) (a.y - B) / a.x else 0.0
+    val negativeK = abs(1 / k)
+    val angle = if ((a.x == b.x) && (a.x == 0.0)) PI/2 else atan(negativeK)
+    return Line(midle, angle)
+}
 
 /**
  * Средняя
