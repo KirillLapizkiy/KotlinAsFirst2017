@@ -231,10 +231,9 @@ fun bestHighJump(jumps: String): Int {
 */
 fun plusMinus(expression: String): Int {
     if (expression.isEmpty()) throw IllegalArgumentException()
-    val numbers = '0'..'9'
-    val allowedSymbols = listOf("%", "-", "+")
+    val format = Regex("""^([0-9]+)(\s+(\+|-)\s+([0-9]+))*$""")
+    if(!(expression.matches(format))) throw IllegalArgumentException()
     val parts = expression.split(" ")
-    //val buf = StringBuilder("")
     var buf = 0
     var result = 0
     var isNumber = true
@@ -243,12 +242,10 @@ fun plusMinus(expression: String): Int {
         when {
             isNumber -> buf += part.toInt()
             !isNumber -> {
-                if (part !in allowedSymbols)
-                    throw IllegalArgumentException() else
-                    when {
-                        part == "+" -> plus = true
-                        part == "-" -> plus = false
-                    }
+                when {
+                    part == "+" -> plus = true
+                    part == "-" -> plus = false
+                }
             }
         }
         if (isNumber)
@@ -439,7 +436,7 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
     val allowedCommandsAndSymbols = listOf('[', ']', '+', '-', '>', '<', ' ')
     val cellRow = MutableList(cells, {0})
     if (commands.isEmpty()) return cellRow
-    var i = 0 // command count
+    var cmd_counter = limit // command count
     var k = 0 // command id
     var braceBalance = 0
     for (command in commands){
@@ -452,46 +449,39 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
     }
     if (braceBalance != 0) throw IllegalArgumentException()
     fun bodyCycleSizeFun(k: Int): Int {
-        var z = 0
+        var z = 1
         while (commands[k + z] != ']') {
-            ++z
             if (commands[k + z] == '[') z += bodyCycleSizeFun(k + z)
+            ++z
         }
         return z
     }
     fun cycle(): MutableList<Int> {
         var cycleDeactivated = false
         var cycleBodySize = 0
-        while (!(cycleDeactivated) && (i < limit)){
-            when {
-                commands[k] == '>' -> {
-                    ++i
-                    if (positionId + 1 >= cells) throw IllegalStateException() else positionId += 1
-                }
-                commands[k] == '<' -> {
-                    ++i
-                    if (positionId - 1 < 0) throw IllegalStateException() else positionId -= 1
-                }
-                commands[k] == '+' -> {
-                    ++i
-                    cellRow[positionId] += 1
-                }
-                commands[k] == '-' -> {
-                    ++i
-                    cellRow[positionId] -= 1
-                }
-                commands[k] == '[' -> {
-                    ++i
-                    cycleBodySize += bodyCycleSizeFun(k)
+        while (!(cycleDeactivated) && (cmd_counter > 0)){
+            --cmd_counter
+            when(commands[k]) {
+                '>' -> if (positionId + 1 >= cells) throw IllegalStateException() else positionId += 1
+                '<' -> if (positionId - 1 < 0) throw IllegalStateException() else positionId -= 1
+                '+' -> cellRow[positionId] += 1
+                '-' -> cellRow[positionId] -= 1
+                '[' -> {
+                    cycleBodySize += bodyCycleSizeFun(k) //размер текущего цикла + цикл,
+                                                        // который берёт начало в этом цикле
                     if (cellRow[positionId] != 0) {
-                        ++k; cycle();
-                    } else {
-                        ++i
-                        while (commands[k] != ']') ++k
+                        ++k; cycle() //тогда войти в цикл
+                    }
+                    else { //тогда пропустить этот цикл
+                        var j = 0
+                        val size = bodyCycleSizeFun(k)
+                        while (j < size) {
+                            ++k
+                            ++j
+                        }
                     }
                 }
-                commands[k] == ']' -> {
-                    ++i
+                ']' -> {
                     if (cellRow[positionId] != 0) {
                         while (cycleBodySize > -1) {
                             --k
@@ -499,16 +489,17 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
                         }
 
                     } else {
+                        println("DEACTIVATE CYCLE")
                         cycleDeactivated = true
                         --k
                     }
                 }
-                commands[k] == ' ' -> ++i
+                ' ' -> null
                 else -> throw IllegalArgumentException()
             }
-            ++cycleBodySize
+            ++cycleBodySize //размер текущего цикла
             ++k
-            if (k >= commands.count()) return cellRow
+            if (k >= commands.length) return cellRow //если дошёл до конца строки команд
         }
         return cellRow
     }
