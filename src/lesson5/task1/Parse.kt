@@ -1,6 +1,7 @@
 @file:Suppress("UNUSED_PARAMETER")
 
 package lesson5.task1
+import sun.invoke.empty.Empty
 import java.lang.Math.*
 /**
  * Пример
@@ -229,7 +230,7 @@ fun bestHighJump(jumps: String): Int {
 * Про нарушении формата входной строки бросить исключение IllegalArgumentException
 */
 fun plusMinus(expression: String): Int {
-    if (expression.isEmpty()) return -1
+    if (expression.isEmpty()) throw IllegalArgumentException()
     val numbers = '0'..'9'
     val allowedSymbols = listOf("%", "-", "+")
     val parts = expression.split(" ")
@@ -323,16 +324,16 @@ fun mostExpensive(description: String): String {
     for (part in parts) {
         when {
             !isNumber -> {
-                try {
                     productBuf.delete(0, productBuf.length)
                     productBuf.append(part)
-                }
-                catch(e:NumberFormatException){return ""}
             }
             isNumber -> {
                 if ((part[part.length - 1] != ';') && (part != parts[parts.count() - 1])
                         || (part[part.length - 1] == '.') || (part[0] == '.')) return ""
-                priceBuf = Regex(""";""").replace(part,"").toDouble()
+                try {
+                    priceBuf = Regex(""";""").replace(part, "").toDouble()
+                }
+                catch (e: NumberFormatException){return ""}
             }
         }
         if ((bestPrice <= priceBuf) && (isNumber)) {
@@ -438,8 +439,9 @@ fun fromRoman(roman: String): Int {
 *
 */
 fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
-    var positionId = floor((cells / 2).toDouble()).toInt()
+    var positionId = cells / 2 + cells % 2
     val cellRow = MutableList(cells, {0})
+    if (commands.isEmpty()) return cellRow
     var i = 0
     var k = 0
     var braceBalance = 0

@@ -301,21 +301,16 @@ fun roman(n: Int): String {
     val result = StringBuilder("")
     val romanMap = mapOf(1000 to "M", 900 to "CM", 500 to "D", 400 to "CD",
             100 to "C", 90 to "XC", 50 to "L", 40 to "XL", 10 to "X")
-    //val bigRomanNumbers = listOf("M","CM","D","CD","C","XC","L","XL","X")
     val roman = listOf("", "I", "II", "III", "IV",
             "V", "VI", "VII", "VIII", "IX")
-    //val bigRomanNumbers = listOf("M","CM","D","CD","C","XC","L","XL","X")
-    //val bigNumbers = listOf(1000, 900, 500, 400, 100, 90, 50, 40, 10)
+    val bigNumbers = listOf(1000, 900, 500, 400, 100, 90, 50, 40, 10)
     var numberType = 0
-    var romanType = 0
     while(buf > 9){
         while(buf - bigNumbers[numberType] >= 0){
             buf -= bigNumbers[numberType]
-            //result.append(bigRomanNumbers[romanType])
-            result.append(romanMap[romanType])
+            result.append(romanMap[bigNumbers[numberType]])
         }
         ++numberType
-        ++romanType
     }
     result.append(roman[buf])
     return result.toString()
