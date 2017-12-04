@@ -448,7 +448,7 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
         }
     }
     if (braceBalance != 0) throw IllegalArgumentException()
-    fun bodyCycleSizeFun(k: Int): Int {
+    fun bodyCycleSizeFun(k: Int): Int {         // узнать размер текущего цикла
         var z = 1
         while (commands[k + z] != ']') {
             if (commands[k + z] == '[') z += bodyCycleSizeFun(k + z)
@@ -489,7 +489,6 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
                         }
 
                     } else {
-                        println("DEACTIVATE CYCLE")
                         cycleDeactivated = true
                         --k
                     }
@@ -504,5 +503,4 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
         return cellRow
     }
     return cycle()
-
 }
