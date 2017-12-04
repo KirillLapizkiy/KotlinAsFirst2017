@@ -194,12 +194,12 @@ fun factorize(n: Int): List<Int> {
     val list = mutableListOf<Int>()
     var j = 2
     var cloneN = n
-    if (cloneN % j == 0) {
+    while (cloneN % j == 0) {
         cloneN /= j
         list.add(j)
     }
     ++j
-    while (j <= cloneN) {
+    while (j <= ceil(sqrt(n.toDouble()))) {
         if (cloneN % j == 0) {
             cloneN /= j
             list.add(j)
@@ -207,6 +207,7 @@ fun factorize(n: Int): List<Int> {
         }
         j += 2
     }
+    if (list.count() == 0) list.add(n)
     return list
 }
 /**
@@ -298,20 +299,23 @@ fun decimalFromString(str: String, base: Int): Int {
 fun roman(n: Int): String {
     var buf = n
     val result = StringBuilder("")
+    val romanMap = mapOf(1000 to "M", 900 to "CM", 500 to "D", 400 to "CD",
+            100 to "C", 90 to "XC", 50 to "L", 40 to "XL", 10 to "X")
+    //val bigRomanNumbers = listOf("M","CM","D","CD","C","XC","L","XL","X")
     val roman = listOf("", "I", "II", "III", "IV",
             "V", "VI", "VII", "VIII", "IX")
-    val bigRomanNumbers = listOf("M","CM","D","CD","C","XC","L","XL","X")
-    val bigNumbers = listOf(1000, 900, 500, 400, 100, 90, 50, 40, 10)
+    //val bigRomanNumbers = listOf("M","CM","D","CD","C","XC","L","XL","X")
+    //val bigNumbers = listOf(1000, 900, 500, 400, 100, 90, 50, 40, 10)
     var numberType = 0
     var romanType = 0
     while(buf > 9){
         while(buf - bigNumbers[numberType] >= 0){
             buf -= bigNumbers[numberType]
-            result.append(bigRomanNumbers[romanType])
+            //result.append(bigRomanNumbers[romanType])
+            result.append(romanMap[romanType])
         }
         ++numberType
         ++romanType
-        println(result)
     }
     result.append(roman[buf])
     return result.toString()
@@ -350,7 +354,7 @@ fun constructing(buf: Int, isItJuniorPart: Boolean): MutableList<String>{
             "пятьдесят", "шестьдесят", "семьдесят", "восемьдесят", "девяносто")
     val rus100 = listOf("", "сто", "двести", "триста", "четыреста", "пятьсот", "шестьсот",
             "семьсот", "восемьсот", "девятьсот")
-    val string = mutableListOf<String>("")
+    val string = mutableListOf<String>()
     string.add(rus100[buf / 100])
     when {
         buf % 10 == 0 -> string.add(rus10[(buf % 100) / 10])
