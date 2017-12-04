@@ -234,19 +234,14 @@ fun plusMinus(expression: String): Int {
     val numbers = '0'..'9'
     val allowedSymbols = listOf("%", "-", "+")
     val parts = expression.split(" ")
-    val buf = StringBuilder("")
+    //val buf = StringBuilder("")
+    var buf = 0
     var result = 0
     var isNumber = true
     var plus = true
     for (part in parts) {
         when {
-            isNumber -> {
-                for (symbol in part) {
-                    buf.delete(0, buf.length)
-                    if (symbol in numbers) buf.append(symbol.toString()) else
-                        throw IllegalArgumentException()
-                }
-            }
+            isNumber -> buf += part.toInt()
             !isNumber -> {
                 if (part !in allowedSymbols)
                     throw IllegalArgumentException() else
@@ -260,11 +255,11 @@ fun plusMinus(expression: String): Int {
             when {
                 plus -> {
                     result += buf.toString().toInt()
-                    buf.delete(0, buf.length)
+                    buf = 0
                 }
                 else -> {
                     result -= buf.toString().toInt()
-                    buf.delete(0, buf.length)
+                    buf = 0
                 }
             }
         isNumber = !isNumber
@@ -367,6 +362,7 @@ fun fromRoman(roman: String): Int {
     var bufPreviousInNumber = 0
     for(symbol in roman){
         buf.append(symbol)
+        if (symbol.toString() !in romanNumbers) return -1
         if(buf.length == 2){
             if (buf.toString() in romanNumbers){
                 val currentBufInNumber = arabNumbers[romanNumbers.indexOf(buf.toString())]
@@ -439,15 +435,20 @@ fun fromRoman(roman: String): Int {
 *
 */
 fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
-    var positionId = cells / 2 + cells % 2
+    var positionId = cells / 2
+    val allowedCommandsAndSymbols = listOf('[', ']', '+', '-', '>', '<', ' ')
     val cellRow = MutableList(cells, {0})
     if (commands.isEmpty()) return cellRow
-    var i = 0
-    var k = 0
+    var i = 0 // command count
+    var k = 0 // command id
     var braceBalance = 0
     for (command in commands){
-        if (command == '[') ++braceBalance
-        else if (command == ']') --braceBalance
+        when{
+            command == '[' -> ++braceBalance
+            command == ']' -> --braceBalance
+            command !in allowedCommandsAndSymbols -> throw IllegalArgumentException()
+
+        }
     }
     if (braceBalance != 0) throw IllegalArgumentException()
     fun bodyCycleSizeFun(k: Int): Int {
@@ -464,26 +465,33 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
         while (!(cycleDeactivated) && (i < limit)){
             when {
                 commands[k] == '>' -> {
+                    ++i
                     if (positionId + 1 >= cells) throw IllegalStateException() else positionId += 1
                 }
                 commands[k] == '<' -> {
+                    ++i
                     if (positionId - 1 < 0) throw IllegalStateException() else positionId -= 1
                 }
                 commands[k] == '+' -> {
+                    ++i
                     cellRow[positionId] += 1
                 }
                 commands[k] == '-' -> {
+                    ++i
                     cellRow[positionId] -= 1
                 }
                 commands[k] == '[' -> {
+                    ++i
                     cycleBodySize += bodyCycleSizeFun(k)
                     if (cellRow[positionId] != 0) {
-                        ++k; ++i; cycle(); --i
+                        ++k; cycle();
                     } else {
+                        ++i
                         while (commands[k] != ']') ++k
                     }
                 }
                 commands[k] == ']' -> {
+                    ++i
                     if (cellRow[positionId] != 0) {
                         while (cycleBodySize > -1) {
                             --k
@@ -495,12 +503,11 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
                         --k
                     }
                 }
-                commands[k] == ' ' -> null
+                commands[k] == ' ' -> ++i
                 else -> throw IllegalArgumentException()
             }
             ++cycleBodySize
             ++k
-            ++i
             if (k >= commands.count()) return cellRow
         }
         return cellRow

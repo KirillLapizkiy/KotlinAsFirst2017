@@ -91,6 +91,8 @@ class Tests {
         assertEquals(4, plusMinus("2 + 2"))
         assertEquals(6, plusMinus("2 + 31 - 40 + 13"))
         assertEquals(-1, plusMinus("0 - 1"))
+        assertEquals(-1841694632, plusMinus("1441328811 + 0 - 2147483647 - 742749477 + 0 - 2147483647 - " +
+                "1051107207 + " + "658316889 - 2147483647 - 2147483647 + 2147483647 - 1 + 2147483647 + 2147483647 - 0"))
     }
 
     @Test
@@ -125,6 +127,7 @@ class Tests {
         assertEquals(-1, fromRoman("Z"))
         assertEquals(-1,fromRoman("IIV"))
         assertEquals(-1,fromRoman("VIIV"))
+        assertEquals(-1, fromRoman("V)gMdKpg2G~p_}uX?bH "))
     }
 
     @Test
@@ -137,6 +140,7 @@ class Tests {
                 computeDeviceCells(11, "<<<<< + >>>>>>>>>> --[<-] >+[>+] >++[--< <[<] >+[>+] >++]", 10000))
 
         assertEquals(listOf(0, 0, 0, 0, 0, 1, 1, 0, 0, 0), computeDeviceCells(10, "+>+>+>+>+", 4))
+        assertEquals(listOf(2), computeDeviceCells(1, "[[-]++[--<>++--]+-+[-]]", 4))
         assertEquals(listOf(0, 0, -1, -1, -1, 0, 0, 0, 0, 0), computeDeviceCells(10, "<-<-<-<-<-", 6))
         assertEquals(listOf(1, 1, 1, 0, 0, -1, 0, 0, 0, 0), computeDeviceCells(10, "- <<<<< +[>+]", 17))
         assertEquals(listOf(0, 6, 5, 4, 3, 2, 1, 0, -1, -1, -2),
