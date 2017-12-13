@@ -121,6 +121,7 @@ class Tests {
         assertTrue(Circle(center, 1.0).contains(center))
         assertFalse(Circle(center, 2.0).contains(Point(0.0, 0.0)))
         assertTrue(Circle(Point(0.0, 3.0), 5.01).contains(Point(-4.0, 0.0)))
+        assertTrue(Circle(Point(-999.1237201340662, -999.1712828227256), 661.6799043859469).contains(Point(-999.6947102225147, -632.0)))
     }
 
     @Test

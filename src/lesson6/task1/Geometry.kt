@@ -85,7 +85,7 @@ data class Circle(val center: Point, val radius: Double) {
      *
      * Вернуть true, если и только если окружность содержит данную точку НА себе или ВНУТРИ себя
      */
-    fun contains(p: Point): Boolean = sqrt(sqr(center.x - p.x) - sqr(center.y - p.y)) <= radius
+    fun contains(p: Point): Boolean = sqrt(sqr(center.x - p.x) + sqr(center.y - p.y)) <= radius
 
 }
 
@@ -154,14 +154,15 @@ class Line private constructor(val b: Double, val angle: Double) {
      * Для этого необходимо составить и решить систему из двух уравнений (каждое для своей прямой)
      */
     fun crossPoint(other: Line): Point {
-
-        val k1 = sin(angle) / cos(angle)
-        val k2 = sin(other.angle) / cos(other.angle)
-        if (k1 == k2) throw IllegalArgumentException()
-        val y = (-b * sin(other.angle) + other.b * sin(angle)) /
-                (sin(angle) * cos(other.angle) * (1 - (sin(other.angle) * cos(angle))
-                        / (sin(angle) * cos(other.angle))))
-        val x = (y * cos(angle) - b) / sin(angle)
+        val sinAlpha = sin(angle)
+        val cosAlpha = cos(angle)
+        val sinBeta = sin(other.angle)
+        val cosBeta = cos(other.angle)
+        if (sinAlpha * cosBeta == sinBeta * cosAlpha) throw IllegalArgumentException()
+        val y = (-b * sinBeta + other.b * sinAlpha) /
+                (sinAlpha * cosBeta * (1 - (sinBeta * cosAlpha)
+                        / (sinAlpha * cosBeta)))
+        val x = (y * cosAlpha - b) / sinAlpha
         return Point(x,y)
 
     }
