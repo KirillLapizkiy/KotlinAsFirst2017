@@ -185,11 +185,10 @@ class Line private constructor(val b: Double, val angle: Double) {
  * Построить прямую по отрезку
  */
 fun lineBySegment(s: Segment): Line {
-    val b = (s.end.y * s.begin.x - (s.begin.y * s.end.x)) / ((1 - s.end.x / s.begin.x) * s.begin.x)
-    val k = if (s.begin.y != s.end.y) (s.begin.y - b) / s.begin.x else 0.0
-    var angle = if (s.begin.x == s.end.x) PI/2 else atan(k)
-    if (angle > Math.PI) angle -= Math.PI else
-        if (angle < 0.0) angle += Math.PI
+    val k = (s.end.y - s.begin.y) / (s.end.x - s.begin.x)
+    var angle = if ((s.begin.x == s.end.x) || (s.end.x - s.begin.x == 0.0)) PI/2 else atan(k)
+    if (angle > Math.PI) angle -= Math.PI
+    if (angle < 0.0) angle += Math.PI
     return Line(s.begin, angle)
 }
 
@@ -263,22 +262,27 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
  * соединяющий две самые удалённые точки в данном множестве.
  */
 fun minContainingCircle(vararg points: Point): Circle {
-    when{
+    when {
         points.isEmpty() -> throw IllegalArgumentException()
         points.size == 1 -> return Circle(points[0], 0.0)
     }
-    val pointsList = points.toList()
-    var prevD = circleByDiameter(Segment(pointsList[0],pointsList[1]))
-    var d: Circle
-    for (i in 3..pointsList.count()){
-        if(prevD.contains(pointsList[i])) d = prevD else
-            d = MinDiscWithPoint(*points, points[i])
+    val d = diameter(*points)
+    val maxCircle = circleByDiameter(d)
+    var i = 0
+    while (i < points.count()) {
+        if (!maxCircle.contains(points[i])) break
+        if (i == points.count() - 1) return Circle(maxCircle.center, maxCircle.radius)
+        ++i
     }
-}
-fun MinDiscWithPoint (vararg points: Point, pi: Point): Circle{
-    var prevD = circleByDiameter(Segment(points[0], pi))
-    for (i in 2..points.count()){
-        if(prevD.contains(points[i])) d = prevD else
-            d = MinDiscWithPoint(*points, points[i])
+
+    var farPoint = points[0]
+    var biggestDistance = farPoint.distance(maxCircle.center)
+    for (j in 1 until points.size) {
+        val currentDistance = points[j].distance(maxCircle.center)
+        if (currentDistance > biggestDistance) {
+            biggestDistance = currentDistance
+            farPoint = points[j]
+        }
     }
+    return circleByThreePoints(d.begin, d.end, farPoint)
 }
