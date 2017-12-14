@@ -93,18 +93,6 @@ data class Circle(val center: Point, val radius: Double) {
  * Отрезок между двумя точками
  */
 data class Segment(val begin: Point, val end: Point) {
-    //определяет, с какой стороны от вектора AB находится точка C
-    fun rotate(p: Point) = (end.x - begin.x) * (p.y - end.y) - (end.y - begin.y) * (p.x - end.x)
-
-    // Середина отрезка (точка)
-    fun mid(): Point{
-        val x = begin.x + (end.x - begin.x) / 2
-        val y = begin.y + (end.y - begin.y) / 2
-        return Point(x, y)
-    }
-
-    // Длина отрезка
-    fun len() = begin.distance(end)
     override fun equals(other: Any?) =
             other is Segment && (begin == other.begin && end == other.end || end == other.begin && begin == other.end)
 
@@ -113,13 +101,13 @@ data class Segment(val begin: Point, val end: Point) {
 
 }
 
-/**
+/*
  * Средняя
  *
  * Дано множество точек. Вернуть отрезок, соединяющий две наиболее удалённые из них.
  * Если в множестве менее двух точек, бросить IllegalArgumentException
  */
-/*fun diameter(vararg points: Point): Segment {
+fun diameter(vararg points: Point): Segment {
     val pointsList = points.toList()
     if (pointsList.count() < 2) throw IllegalArgumentException()
     var theFarthest = 0.0
@@ -135,133 +123,6 @@ data class Segment(val begin: Point, val end: Point) {
         }
     }
     return result
-}*/
-fun main(args: Array<String>){
-    val p1 = Point(0.0, 0.0)
-    val p2 = Point(1.0, 4.0)
-    val p3 = Point(-2.0, 2.0)
-    val p4 = Point(3.0, -1.0)
-    val p5 = Point(-3.0, -2.0)
-    val p6 = Point(0.0, 5.0)
-    val res = diameter(p1, p2, p3, p4)
-    println("RES: ${res.begin}  ${res.end}") // (-2;2) (3;-1)
-}
-
-fun diameter(vararg points: Point): Segment {
-    val mch = MCH(*points)
-    mch.printVertices()
-    return mch.diameter()
-}
-
-/**
- * Минимальная выпуклая оболочка (МВО) множества точек плоскости
- * (многоукольник, описывающий множество)
- */
-class MCH constructor(vararg points: Point) {
-    private var vertices = listOf(*points) // список вершин МВО
-    // (становится таковым после выполнения конструктора)
-
-    /**
-     * Алгоритм Джарвиса для построения МВО
-     */
-    init {
-        if(vertices.size < 3) throw IllegalArgumentException("less than two arguments passed")
-        setFirstPoint() // шаг 1 - определение отправной точки
-        building() // шаг 2 - построение МВО
-    }
-
-    private fun setFirstPoint() {
-        var result = vertices.toMutableList() //перепишем список всех точек в мутирующий список
-        var min_x_point = result[0] //берём первую точку, чтобы было с чем сравнивать
-        var min_x_index = 0 //индекс точки с минимальным x
-
-        for(i in 1 until result.size)
-            if (result[i].x < min_x_point.x) {
-                min_x_point = result[i]
-                min_x_index = i
-            }
-        result[min_x_index] = result[0]
-        result[0] = min_x_point
-        vertices = result.toList()
-    }
-
-    /**
-     *  Построение МВО
-     */
-    private fun building() {
-        val temp = vertices.toMutableList()
-        val result = mutableListOf(temp[0]) // инициализация первой точкой мн-ва (она точно прин. МВО)
-        temp.removeAt(0) // удаление первой точки из обрабатываемого списка
-        temp.add(result[0]) // и её добавление в конец
-        var next_point: Int
-        var seg: Segment
-
-        // поиск вершин МВО (против ч.с.)
-        // след. вершиной МВО становится "самая правая" точка по отношению к текущей
-        while(true) {
-            next_point = 0
-            if(temp.isEmpty()) break // (на случай, если все точки мн-ва составляют МВО)
-            for(i in 1 until temp.size) {
-                seg = Segment(result.last(), temp[next_point])
-                if (seg.rotate(temp[i]) < 0.0) next_point = i
-            }
-            if(temp[next_point] == result[0]) break // если вернулись к стартовой точке
-            result.add(temp[next_point]) // запись точки в result
-            temp.removeAt(next_point) // удаление точки из обрабатываемого списка
-
-
-        }
-        vertices = result.toList() // запись результата
-        /*for (i in 2 until result.size)){               //сортировка
-            j = i
-            while j > 1 and (rotate(A[P[0]], A[P[j - 1]], A[P[j]]) < 0):
-                P[j], P[j-1] = P[j-1], P[j]
-                j -= 1
-        }*/
-    }
-
-    fun diameter(): Segment {
-        var i = 0
-        var j = 1
-        var seg1: Segment
-        var seg2: Segment
-        var max_seg = Segment(Point(0.0,0.0), Point(0.0,0.0)) // нулевой отрезок
-        var S = 0.0 // S текущего тре-ника
-
-        // Поиск наиболее удаленной от "стартового" отрезка точки (через S тре-ника)
-        while(Triangle(vertices[i], vertices[i+1], vertices[j+1]).area() > S){
-            S = Triangle(vertices[i], vertices[i+1], vertices[j+1]).area()
-            j++
-            if(j+1 >= vertices.size) break
-        }
-
-        // Поиск диаметра
-        while(j < vertices.size) { // пока q не дошло до p0
-            seg1 = Segment(vertices[i], vertices[j])
-            seg2 = Segment(vertices[i+1], vertices[j])
-            max_seg = maxSeg(seg1, seg2, max_seg)
-            j++
-            i++
-        }
-        return max_seg
-    }
-
-    // Отрезок наибольшей длины
-    fun maxSeg(vararg segments: Segment): Segment {
-        var index_of_max = 0
-        var max_len = segments[0].len()
-        for(i in 1 until segments.size)
-            if(segments[i].len() > max_len){
-                max_len = segments[i].len()
-                index_of_max = i
-            }
-        return segments[index_of_max]
-    }
-
-    fun printVertices(){
-        for(p in vertices)
-            println("${p.x}\t${p.y}")
-    }
 }
 
 /**
@@ -326,7 +187,9 @@ class Line private constructor(val b: Double, val angle: Double) {
 fun lineBySegment(s: Segment): Line {
     val b = (s.end.y * s.begin.x - (s.begin.y * s.end.x)) / ((1 - s.end.x / s.begin.x) * s.begin.x)
     val k = if (s.begin.y != s.end.y) (s.begin.y - b) / s.begin.x else 0.0
-    val angle = if (s.begin.x == s.end.x) PI/2 else atan(k)
+    var angle = if (s.begin.x == s.end.x) PI/2 else atan(k)
+    if (angle > Math.PI) angle -= Math.PI else
+        if (angle < 0.0) angle += Math.PI
     return Line(s.begin, angle)
 }
 
@@ -356,7 +219,23 @@ fun bisectorByPoints(a: Point, b: Point): Line {
  * Задан список из n окружностей на плоскости. Найти пару наименее удалённых из них.
  * Если в списке менее двух окружностей, бросить IllegalArgumentException
  */
-fun findNearestCirclePair(vararg circles: Circle): Pair<Circle, Circle> = TODO()
+fun findNearestCirclePair(vararg circles: Circle): Pair<Circle, Circle> {
+    if (circles.size < 2) throw  IllegalArgumentException()
+    var minDistance = circles[0].distance(circles[1])
+    var pair = Pair(circles[0], circles[1])
+    for (i in 0 until circles.count()) {
+        for (j in 0 until circles.count()) {
+            val distance = circles[i].distance(circles[j])
+            if (i != j) {
+                if (distance < minDistance) {
+                    pair = Pair(circles[i], circles[j])
+                    minDistance = distance
+                }
+            }
+        }
+    }
+    return pair
+}
 
 /**
  * Сложная
@@ -367,7 +246,10 @@ fun findNearestCirclePair(vararg circles: Circle): Pair<Circle, Circle> = TODO()
  * (построить окружность по трём точкам, или
  * построить окружность, описанную вокруг треугольника - эквивалентная задача).
  */
-fun circleByThreePoints(a: Point, b: Point, c: Point): Circle = TODO()
+fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
+    val toCenter = bisectorByPoints(a, b).crossPoint(bisectorByPoints(b, c))
+    return Circle(toCenter, toCenter.distance(b))
+}
 
 /**
  * Очень сложная
@@ -380,5 +262,23 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle = TODO()
  * три точки данного множества, либо иметь своим диаметром отрезок,
  * соединяющий две самые удалённые точки в данном множестве.
  */
-fun minContainingCircle(vararg points: Point): Circle = TODO()
-
+fun minContainingCircle(vararg points: Point): Circle {
+    when{
+        points.isEmpty() -> throw IllegalArgumentException()
+        points.size == 1 -> return Circle(points[0], 0.0)
+    }
+    val pointsList = points.toList()
+    var prevD = circleByDiameter(Segment(pointsList[0],pointsList[1]))
+    var d: Circle
+    for (i in 3..pointsList.count()){
+        if(prevD.contains(pointsList[i])) d = prevD else
+            d = MinDiscWithPoint(*points, points[i])
+    }
+}
+fun MinDiscWithPoint (vararg points: Point, pi: Point): Circle{
+    var prevD = circleByDiameter(Segment(points[0], pi))
+    for (i in 2..points.count()){
+        if(prevD.contains(points[i])) d = prevD else
+            d = MinDiscWithPoint(*points, points[i])
+    }
+}
