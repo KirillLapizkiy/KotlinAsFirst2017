@@ -85,8 +85,8 @@ data class Circle(val center: Point, val radius: Double) {
      *
      * Вернуть true, если и только если окружность содержит данную точку НА себе или ВНУТРИ себя
      */
-    fun contains(p: Point): Boolean = sqrt(sqr(center.x - p.x) + sqr(center.y - p.y)) <= radius
 
+    fun contains(p: Point): Boolean = sqrt(sqr(center.x - p.x) + sqr(center.y - p.y)) <= radius
 }
 
 /**
@@ -155,17 +155,11 @@ class Line private constructor(val b: Double, val angle: Double) {
      * Для этого необходимо составить и решить систему из двух уравнений (каждое для своей прямой)
      */
     fun crossPoint(other: Line): Point {
-        val sinAlpha = sin(angle)
-        val cosAlpha = cos(angle)
-        val sinBeta = sin(other.angle)
-        val cosBeta = cos(other.angle)
-        if (sinAlpha * cosBeta == sinBeta * cosAlpha) throw IllegalArgumentException()
-        val y = (-b * sinBeta + other.b * sinAlpha) /
-                (sinAlpha * cosBeta * (1 - (sinBeta * cosAlpha)
-                        / (sinAlpha * cosBeta)))
-        val x = (y * cosAlpha - b) / sinAlpha
-        return Point(x,y)
-
+        val k1 = tan(angle)
+        val k2 = tan(other.angle)
+        val x = (other.b / cos(other.angle) - b / cos(angle)) / (k1 - k2)
+        val y = x * k2 + other.b / cos(other.angle)
+        return Point(x, y)
     }
 
     override fun equals(other: Any?) = other is Line && angle == other.angle && b == other.b
@@ -186,9 +180,10 @@ class Line private constructor(val b: Double, val angle: Double) {
  */
 fun lineBySegment(s: Segment): Line {
     val k = (s.end.y - s.begin.y) / (s.end.x - s.begin.x)
-    var angle = if ((s.begin.x == s.end.x) || (s.end.x - s.begin.x == 0.0)) PI/2 else atan(k)
-    if (angle > Math.PI) angle -= Math.PI
-    if (angle < 0.0) angle += Math.PI
+    var angle = atan(k)
+    if (angle >= PI) angle -= PI else
+    if (angle < 0.0) angle += PI
+    //отказался от abs, потому что с ним значения не точны
     return Line(s.begin, angle)
 }
 
@@ -205,9 +200,10 @@ fun lineByPoints(a: Point, b: Point): Line = lineBySegment(Segment(a, b))
  * Построить серединный перпендикуляр по отрезку или по двум точкам
  */
 fun bisectorByPoints(a: Point, b: Point): Line {
-    val line = lineByPoints(a, b)
-    var angle = Math.PI / 2 + line.angle
-    if (abs(angle) >= Math.PI) angle = abs(angle % Math.PI)
+    var angle = lineByPoints(a, b).angle + (PI / 2)  //угол, плюс перпендикуляр, т.к. основа может быть наклонена
+    if (angle >= PI) angle -= PI else
+        if (angle < 0.0) angle += PI
+    //отказался от abs, потому что с ним значения не точны
     val point = Point((b.x + a.x) / 2.0, (b.y + a.y) / 2.0)
     return Line(point, angle)
 }

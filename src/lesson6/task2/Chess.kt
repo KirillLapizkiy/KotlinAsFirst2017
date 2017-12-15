@@ -25,7 +25,7 @@ data class Square(val column: Int, val row: Int) {
      */
     fun notation(): String {
         val colomns = mapOf(1 to 'a', 2 to 'b', 3 to 'c', 4 to 'd', 5 to 'e', 6 to 'f', 7 to 'g', 8 to 'h')
-        if ((row == 0) || (column == 0)) return ""
+        if ((row !in 1..8) || (column !in 1..8)) return ""
         return String.format("%c%d", colomns[column], row)
     }
 }
@@ -151,8 +151,22 @@ fun bishopMoveNumber(start: Square, end: Square): Int {
  *          bishopTrajectory(Square(1, 3), Square(6, 8)) = listOf(Square(1, 3), Square(6, 8))
  * Если возможно несколько вариантов самой быстрой траектории, вернуть любой из них.
  */
-fun bishopTrajectory(start: Square, end: Square): List<Square> = TODO()
-
+fun bishopTrajectory(start: Square, end: Square): List<Square> {
+    when(bishopMoveNumber(start, end)){
+        1 -> return listOf(start, end)
+        0 -> return listOf(start)
+        2 -> {
+            var markPointY = (end.column + end.row - start.column + start.row) / 2
+            var markPointX = end.row + end.column - markPointY
+            if (!(markPointX in 1..8) || !(markPointY in 1..8)) {
+                markPointY = (start.column + start.row - end.column + end.row) / 2
+                markPointX = end.column - end.row + markPointY
+            }
+            return listOf(start, Square(markPointX,markPointY),end)
+        }
+    }
+    return listOf<Square>()
+}
 /**
  * Средняя
  *
