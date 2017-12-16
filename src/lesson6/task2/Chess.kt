@@ -191,7 +191,7 @@ fun kingMoveNumber(start: Square, end: Square): Int {
     var xMark = start.column
     var yMark = start.row
     var result = 0
-    if ((!start.inside()) || (!start.inside())) throw IllegalArgumentException()
+    if ((!start.inside()) || (!end.inside())) throw IllegalArgumentException()
     if (start == end) return 0
     while (!((xMark == end.column) && (yMark == end.row))){
         when {
