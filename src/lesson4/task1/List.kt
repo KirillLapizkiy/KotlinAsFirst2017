@@ -192,24 +192,21 @@ fun accumulate(list: MutableList<Double>): MutableList<Double> {
  */
 fun factorize(n: Int): List<Int> {
     val list = mutableListOf<Int>()
-    var j = 2
     var cloneN = n
-    while (cloneN % j == 0) {
-        cloneN /= j
-        list.add(j)
+    while (cloneN % 2 == 0) {
+        cloneN /= 2
+        list.add(2)
     }
-    ++j
-
+    var j = 3
     while (j <= ceil(sqrt(n.toDouble()))) {
-        if (cloneN % j == 0) {
+        while (cloneN % j == 0) {
             cloneN /= j
             list.add(j)
-            j -= 2
         }
         j += 2
     }
     if (cloneN > 1) list.add(cloneN)
-    if (list.count() == 0) list.add(n)
+    if (list.size == 0) list.add(n)
     return list
 }
 /**

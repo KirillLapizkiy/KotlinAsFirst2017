@@ -1,7 +1,6 @@
 @file:Suppress("UNUSED_PARAMETER")
 
 package lesson5.task1
-import sun.invoke.empty.Empty
 import java.lang.Math.*
 /**
  * Пример
@@ -130,25 +129,21 @@ fun flattenPhoneNumber(phone: String): String {
 */
 fun bestLongJump(jumps: String): Int {
     if (jumps.isEmpty()) return -1
-    val allowedSymbols = listOf('%', '-')
+    val allowedSymbols = setOf('%', '-')
     val parts = jumps.split(" ")
-    val buf = StringBuilder("")
+    var buf = 0
     var bestScore = -1
     var isItNumber = false
     for (part in parts) {
         for (symbol in part) {
             when {
-                symbol in '0'..'9' -> {
-                    isItNumber = true
-                    buf.append(symbol.toString())
-                }
+                symbol in '0'..'9' -> isItNumber = true
                 symbol in allowedSymbols -> if (isItNumber) return -1
                 else -> return -1
             }
         }
-        if ((isItNumber)&&(buf.toString().toInt() > bestScore))
-            bestScore = buf.toString().toInt()
-        buf.delete(0, buf.length)
+        if(isItNumber) buf = part.toInt()
+        if (isItNumber && (buf > bestScore)) bestScore = buf
         isItNumber = false
     }
     return bestScore
@@ -166,12 +161,11 @@ fun bestLongJump(jumps: String): Int {
 */
 fun bestHighJump(jumps: String): Int {
     if (jumps.isEmpty()) return -1
-    val allowedSymbols = listOf('%', '-', '+')
+    val allowedSymbols = setOf('%', '-', '+')
     val parts = jumps.split(" ")
     var buf = 0
     var bestScore = -1
     var isNumber = true
-    var counted = false
     //true - число, false - %%-
     for (part in parts) {
         when {
@@ -182,15 +176,12 @@ fun bestHighJump(jumps: String): Int {
                 }
                 catch(e: NumberFormatException){return -1}
             }
-            !isNumber -> {
-                counted = false
+            !isNumber ->
                 for (symbol in part)
-                    if(symbol == '+') counted = true
-                    else if (symbol !in allowedSymbols) return -1
-            }
+                    if((symbol == '+')&& (buf > bestScore) && !isNumber) bestScore = buf
+                    else
+                    if (symbol !in allowedSymbols) return -1
         }
-        if (counted && (buf > bestScore) &&
-           (!isNumber)) bestScore = buf
         isNumber = !isNumber
     }
     return bestScore
@@ -216,7 +207,19 @@ fun plusMinus(expression: String): Int {
     var plus = true
     for (part in parts) {
         when {
-            isNumber -> buf += part.toInt()
+            isNumber -> {
+                buf += part.toInt()
+                when {
+                    plus -> {
+                        result += buf.toString().toInt()
+                        buf = 0
+                    }
+                    else -> {
+                        result -= buf.toString().toInt()
+                        buf = 0
+                    }
+                }
+            }
             !isNumber -> {
                 when {
                     part == "+" -> plus = true
@@ -224,17 +227,6 @@ fun plusMinus(expression: String): Int {
                 }
             }
         }
-        if (isNumber)
-            when {
-                plus -> {
-                    result += buf.toString().toInt()
-                    buf = 0
-                }
-                else -> {
-                    result -= buf.toString().toInt()
-                    buf = 0
-                }
-            }
         isNumber = !isNumber
     }
     return result
@@ -331,6 +323,10 @@ fun fromRoman(roman: String): Int {
     val romanNumbers = listOf("M","CM","D","CD","C","XC","L","XL",
             "X","IX","VIII","VII","VI","V","IV","III","II", "I")
     val arabNumbers = listOf(1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
+    //listOf(1000 to "M" , 900 to "CM", 500 to "D", 400 to "CD", 100 to "C", 90 to "XC", 50 to "L", 40 to "XL",
+    // 10 to "X", 9 to "IX", 8 to "VIII", 7 to "VII", 6 to "VI", 5 to "V", 4 to "IV", 3, 2, 1)
+    val romanToArab = hashMapOf("M" to 1000, "CM" to 900, "D" to 500, "CD" to 400, "C" to 100, "XC" to 90, "L" to 50, "XL" to 40, "X" to 10,
+            "IX" to 9, "VIII" to 8, "VII" to 7, "VI" to 6, "V" to 5, "IV" to 4, "III" to 3, "II" to 2, "I" to 1)
     val buf = StringBuilder("")
     var bufPreviousInNumber = 0
     for(symbol in roman){
@@ -338,7 +334,7 @@ fun fromRoman(roman: String): Int {
         if (symbol.toString() !in romanNumbers) return -1
         if(buf.length == 2){
             if (buf.toString() in romanNumbers){
-                val currentBufInNumber = arabNumbers[romanNumbers.indexOf(buf.toString())]
+                val currentBufInNumber = romanToArab[buf.toString()] !!
                 if((bufPreviousInNumber < currentBufInNumber) && bufPreviousInNumber != 0) return -1
                 result += currentBufInNumber
                 bufPreviousInNumber = currentBufInNumber
@@ -346,17 +342,17 @@ fun fromRoman(roman: String): Int {
             }
             else {
                 //buf00 - левый литерал из двух в buf
-                val buf00 = arabNumbers[romanNumbers.indexOf(buf[0].toString())]
+                val buf00 = romanToArab[buf[0].toString()] !!
                 if((bufPreviousInNumber < buf00) && bufPreviousInNumber != 0) return -1
-                    result += buf00
-                    bufPreviousInNumber = buf00
-                    buf.delete(0,1)
+                result += buf00
+                bufPreviousInNumber = buf00
+                buf.delete(0,1)
             }
         }
     }
     try {
         if (buf.length == 1) {
-            val currentBufInNumber = arabNumbers[romanNumbers.indexOf(buf.toString())]
+            val currentBufInNumber = romanToArab[buf.toString()]!!
 
             if ((buf.toString() in romanNumbers) &&
                     !((bufPreviousInNumber < currentBufInNumber) && bufPreviousInNumber != 0))
@@ -409,14 +405,14 @@ fun fromRoman(roman: String): Int {
 */
 fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
     var positionId = cells / 2
-    val allowedCommandsAndSymbols = listOf('[', ']', '+', '-', '>', '<', ' ')
-    val cellRow = MutableList(cells, {0})
+    val allowedCommandsAndSymbols = setOf('[', ']', '+', '-', '>', '<', ' ')
+    val cellRow = MutableList(cells, { 0 })
     if (commands.isEmpty()) return cellRow
     var cmd_counter = limit // command count
     var k = 0 // command id
     var braceBalance = 0
-    for (command in commands){
-        when{
+    for (command in commands) {
+        when {
             command == '[' -> ++braceBalance
             command == ']' -> --braceBalance
             command !in allowedCommandsAndSymbols -> throw IllegalArgumentException()
@@ -432,19 +428,20 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
         }
         return z
     }
+
     fun cycle(): MutableList<Int> {
         var cycleDeactivated = false
         var cycleBodySize = 0
-        while (!(cycleDeactivated) && (cmd_counter > 0)){
+        while (!(cycleDeactivated) && (cmd_counter > 0)) {
             --cmd_counter
-            when(commands[k]) {
+            when (commands[k]) {
                 '>' -> if (positionId + 1 >= cells) throw IllegalStateException() else positionId += 1
                 '<' -> if (positionId - 1 < 0) throw IllegalStateException() else positionId -= 1
                 '+' -> cellRow[positionId] += 1
                 '-' -> cellRow[positionId] -= 1
                 '[' -> {
                     cycleBodySize += bodyCycleSizeFun(k) //размер текущего цикла + цикл,
-                                                        // который берёт начало в этом цикле
+                    // который берёт начало в этом цикле
                     if (cellRow[positionId] != 0) {
                         ++k; cycle() //тогда войти в цикл
                     }
