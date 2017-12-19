@@ -14,6 +14,17 @@ data class Point(val x: Double, val y: Double) {
      * Рассчитать (по известной формуле) расстояние между двумя точками
      */
     fun distance(other: Point): Double = Math.sqrt(sqr(x - other.x) + sqr(y - other.y))
+    fun farthest(vararg points: Point): Point {
+        var farthestPoint = points[0]
+        var theBiggestDistance = points[0].distance(Point(x,y))
+        for (point in points){
+            if (point.distance(Point(x,y)) > theBiggestDistance) {
+                farthestPoint = point
+                theBiggestDistance = point.distance(Point(x,y))
+            }
+        }
+        return farthestPoint
+    }
 }
 
 /**
@@ -87,6 +98,17 @@ data class Circle(val center: Point, val radius: Double) {
      */
 
     fun contains(p: Point): Boolean = sqrt(sqr(center.x - p.x) + sqr(center.y - p.y)) <= radius
+    fun farthest(vararg points: Point): Point {
+        var farthestPoint = points[0]
+        var theBiggestDistance = points[0].distance(center)
+        for (point in points){
+            if (point.distance(center) > theBiggestDistance) {
+                farthestPoint = point
+                theBiggestDistance = point.distance(center)
+            }
+        }
+        return farthestPoint
+    }
 }
 
 /**
@@ -155,12 +177,26 @@ class Line private constructor(val b: Double, val angle: Double) {
      * Для этого необходимо составить и решить систему из двух уравнений (каждое для своей прямой)
      */
     fun crossPoint(other: Line): Point {
-        val k1 = tan(angle)
-        val k2 = tan(other.angle)
-        if (angle == PI / 2) return Point(-b, -b * sin(other.angle) / cos(other.angle) + other.b / cos(other.angle))
-        if (other.angle == PI / 2) return Point(-other.b, -other.b * sin(angle) / cos(angle) + b / cos(angle))
-        val x = (other.b / cos(other.angle) - b / cos(angle)) / (k1 - k2)
-        val y = x * k2 + other.b / cos(other.angle)
+        val angleImproved = when {
+            (angle >= PI) -> angle - PI
+            (angle < 0.0) -> angle + PI
+            else -> angle
+        }
+        val otherAngleImproved = when {
+            (other.angle >= PI) -> other.angle - PI
+            (other.angle < 0.0) -> other.angle + PI
+            else -> other.angle
+        }
+        val k1 = tan(angleImproved)
+        val k2 = tan(otherAngleImproved)
+        val cosAngle = cos(angleImproved)
+        val sinAngle = sin(angleImproved)
+        val otherCosAngle = cos(otherAngleImproved)
+        val otherSinAngle = sin(otherAngleImproved)
+        if (angleImproved == PI / 2) return Point(-b, -b * otherSinAngle / otherCosAngle + other.b / otherCosAngle)
+        if (otherAngleImproved == PI / 2) return Point(-other.b, -other.b * sinAngle / cosAngle + b / cosAngle)
+        val x = (other.b / otherCosAngle - b / cosAngle) / (k1 - k2)
+        val y = x * k2 + other.b / otherCosAngle
         return Point(x, y)
     }
 
@@ -220,8 +256,8 @@ fun findNearestCirclePair(vararg circles: Circle): Pair<Circle, Circle> {
     if (circles.size < 2) throw  IllegalArgumentException()
     var minDistance = circles[0].distance(circles[1])
     var pair = Pair(circles[0], circles[1])
-    for (i in 0 until circles.count()) {
-        for (j in 0 until circles.count()) {
+    for (i in 0 until circles.count()/2) {
+        for (j in circles.count()/2 until circles.count()) {
             val distance = circles[i].distance(circles[j])
             if (i != j) {
                 if (distance < minDistance) {
@@ -263,8 +299,31 @@ fun minContainingCircle(vararg points: Point): Circle {
     when {
         points.isEmpty() -> throw IllegalArgumentException()
         points.size == 1 -> return Circle(points[0], 0.0)
+        points.size == 2 -> return circleByDiameter(Segment(points[0], points[1]))
     }
     val d = diameter(*points)
+    if ((d.begin.x == d.end.x) && (d.begin.y == d.end.y)) return circleByDiameter(Segment(points[0], points[1]))
+    val maxCircle = circleByDiameter(d)
+    var i = 1
+    val fixedPoints = mutableListOf<Point>(d.begin, d.end)
+    val farthesPointFromTheCenterOfmaxCircle= maxCircle.farthest(*points).distance(maxCircle.center)
+    //var theFarthestNewOne: Point
+    while(true) {
+        val theFarthestNewOne = maxCircle.farthest(*points) // самая дальняя точка от радиуса окружности, она же - новая
+        if ((farthesPointFromTheCenterOfmaxCircle <= maxCircle.radius) ||
+                (theFarthestNewOne in fixedPoints) ||
+                (theFarthestNewOne in fixedPoints)) break
+        //fixedPoints.add(theFarthestOne)
+        val theFarthestFromTheNewOne = theFarthestNewOne.farthest(*fixedPoints.toTypedArray())   // самая дальняя точка от новой
+        val twoUnusedFixedPoints = mutableListOf<Point>() // для этого списка найдём опорные точки (если их было 3 в fixedlist), которые не оказались самыми дальними от новой
+        for (point in fixedPoints)
+            if (!point.equals(theFarthestFromTheNewOne)) twoUnusedFixedPoints.add(point)
+        val theNewCircle = circleByDiameter(Segment(theFarthestFromTheNewOne, theFarthestNewOne)) // круг, построенный по самой дальней опорной точке и той новой точке
+        if (fixedPoints.size == 3) {
+            val theFarthestNewOne = theNewCircle.farthest(*twoUnusedFixedPoints.toTypedArray()) //Находим из двух неиспользованных точек самую удаленную от центра текущей окружности.
+
+        }
+        /*val d = diameter(*points)
     val maxCircle = circleByDiameter(d)
     var i = 0
     while (i < points.count()) {
@@ -282,5 +341,6 @@ fun minContainingCircle(vararg points: Point): Circle {
             farPoint = points[j]
         }
     }
-    return circleByThreePoints(d.begin, d.end, farPoint)
+    return circleByThreePoints(d.begin, d.end, farPoint)*/
+    }
 }
