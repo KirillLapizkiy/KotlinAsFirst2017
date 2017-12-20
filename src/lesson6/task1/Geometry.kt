@@ -1,6 +1,7 @@
 @file:Suppress("UNUSED_PARAMETER")
 package lesson6.task1
 
+import com.sun.corba.se.impl.oa.poa.POAImpl
 import lesson1.task1.sqr
 import java.lang.Math.*
 
@@ -115,6 +116,8 @@ data class Circle(val center: Point, val radius: Double) {
  * Отрезок между двумя точками
  */
 data class Segment(val begin: Point, val end: Point) {
+    // Позиция точки относительно отрезка ( справа(<0), слева(>=0) )
+    fun rotate(p: Point) = (end.x - begin.x) * (p.y - end.y) - (end.y - begin.y) * (p.x - end.x)
     override fun equals(other: Any?) =
             other is Segment && (begin == other.begin && end == other.end || end == other.begin && begin == other.end)
 
@@ -295,52 +298,90 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
  * три точки данного множества, либо иметь своим диаметром отрезок,
  * соединяющий две самые удалённые точки в данном множестве.
  */
-fun minContainingCircle(vararg points: Point): Circle {
-    when {
-        points.isEmpty() -> throw IllegalArgumentException()
-        points.size == 1 -> return Circle(points[0], 0.0)
-        points.size == 2 -> return circleByDiameter(Segment(points[0], points[1]))
+/*fun grahamscan(vararg points: Point): List<Point>{
+    val pointsList = listOf(*points).distinct().toMutableList()
+    var minPoint = pointsList[0]
+    var minPointIndex = 0
+
+    for(i in 1 until pointsList.size)
+        if (pointsList[i].x < minPoint.x) {
+            minPoint = pointsList[i]
+            minPointIndex = i
+        }
+    pointsList[minPointIndex] = pointsList[0]
+    pointsList[0] = minPoint
+    return pointsList.toList()
+}
+fun swap(points: MutableList<Point>, swapCoordinate1: Int, swapCoordinate2: Int){
+    var tempCoordinate = swapCoordinate1
+    val tempValue = points[swapCoordinate1]
+    points[tempCoordinate] = points[swapCoordinate2]
+    points[swapCoordinate2] = tempValue
+}
+when {
+    points.isEmpty() -> throw IllegalArgumentException()
+    points.size == 1 -> return Circle(points[0], 0.0)
+    points.size == 2 -> return circleByDiameter(Segment(points[0], points[1]))
+}
+val grahamScannedPoints = grahamscan(*points).toMutableList()
+for (i in 2 until grahamScannedPoints.size) {
+    var j = i
+    while ((j > 1) && (Segment(grahamScannedPoints[0], grahamScannedPoints[j - 1]).rotate(grahamScannedPoints[j]) < 0)){
+        swap(grahamScannedPoints, j, j - 1)
+        j -= 1
     }
+
+}
+val MCH = mutableListOf<Point>(grahamScannedPoints[0], grahamScannedPoints[1])
+for (i in 2 until grahamScannedPoints.size) {
+    while (Segment(MCH[MCH.size - 2], MCH[MCH.size - 1]).rotate(grahamScannedPoints[i]) < 0)
+        MCH.removeAt(MCH.size - 1)
+    MCH.add(grahamScannedPoints[i])
+}
+return Circle(diameter(MCH), )*/
+
+fun minContainingCircle(vararg points: Point): Circle {
     val d = diameter(*points)
     if ((d.begin.x == d.end.x) && (d.begin.y == d.end.y)) return circleByDiameter(Segment(points[0], points[1]))
-    val maxCircle = circleByDiameter(d)
-    var i = 1
-    val fixedPoints = mutableListOf<Point>(d.begin, d.end)
-    val farthesPointFromTheCenterOfmaxCircle= maxCircle.farthest(*points).distance(maxCircle.center)
-    //var theFarthestNewOne: Point
-    while(true) {
-        val theFarthestNewOne = maxCircle.farthest(*points) // самая дальняя точка от радиуса окружности, она же - новая
-        if ((farthesPointFromTheCenterOfmaxCircle <= maxCircle.radius) ||
+    var maxCircle = circleByDiameter(d) //стартовая окружность
+    var storedRadius = maxCircle.radius //если радиус не изменится во время выполнения цикла, цикл нужно прервать
+    val fixedPoints = mutableListOf<Point>(d.begin, d.end) // опорные точки
+    while (true) {
+        val theFarthestNewOne = maxCircle.farthest(*points) // самая дальняя точка от радиуса окружности, она же - "новая"
+        if ((theFarthestNewOne.distance(maxCircle.center) <= maxCircle.radius) ||
                 (theFarthestNewOne in fixedPoints) ||
                 (theFarthestNewOne in fixedPoints)) break
-        //fixedPoints.add(theFarthestOne)
-        val theFarthestFromTheNewOne = theFarthestNewOne.farthest(*fixedPoints.toTypedArray())   // самая дальняя точка от новой
-        val twoUnusedFixedPoints = mutableListOf<Point>() // для этого списка найдём опорные точки (если их было 3 в fixedlist), которые не оказались самыми дальними от новой
-        for (point in fixedPoints)
-            if (!point.equals(theFarthestFromTheNewOne)) twoUnusedFixedPoints.add(point)
-        val theNewCircle = circleByDiameter(Segment(theFarthestFromTheNewOne, theFarthestNewOne)) // круг, построенный по самой дальней опорной точке и той новой точке
+        val theFarthestFromTheNewOne = theFarthestNewOne.farthest(*fixedPoints.toTypedArray())   // самая дальняя точка от "новой"
+        val unusedFixedPoints = mutableListOf<Point>() // для этого списка найдём опорные точки (если их было 2-3 в fixedlist), которые не оказались самыми дальними от новой
+        val unusedFixedPointsIndexes = mutableListOf<Int>() // индексы этих неиспользованных точек, чтобы их можно было легче удалить
+        for (point in fixedPoints)  // поиск неиспользованных точек, тех точек, что не являются самыми дальними от "новой" точки
+            if (!point.equals(theFarthestFromTheNewOne)) {
+                unusedFixedPoints.add(point) //если точка не самая дальняя от новой, значит она - неиспользованная
+                unusedFixedPointsIndexes.add(fixedPoints.indexOf(point)) //индекс неиспользованной тоже добавим
+            }
+        maxCircle = circleByDiameter(Segment(theFarthestFromTheNewOne, theFarthestNewOne)) // круг, построенный по самой дальней опорной точке и той новой точке
         if (fixedPoints.size == 3) {
-            val theFarthestNewOne = theNewCircle.farthest(*twoUnusedFixedPoints.toTypedArray()) //Находим из двух неиспользованных точек самую удаленную от центра текущей окружности.
-
+            val theFarthestUnusedFromTheNewOne = maxCircle.farthest(*unusedFixedPoints.toTypedArray()) //Находим из двух неиспользованных точек самую удаленную от центра текущей окружности.
+            if (!maxCircle.contains(theFarthestUnusedFromTheNewOne))
+                maxCircle = circleByThreePoints(theFarthestNewOne,
+                        theFarthestFromTheNewOne, theFarthestUnusedFromTheNewOne)
+            else
+                maxCircle = circleByDiameter(Segment(theFarthestNewOne, theFarthestFromTheNewOne))
         }
-        /*val d = diameter(*points)
-    val maxCircle = circleByDiameter(d)
-    var i = 0
-    while (i < points.count()) {
-        if (!maxCircle.contains(points[i])) break
-        if (i == points.count() - 1) return Circle(maxCircle.center, maxCircle.radius)
-        ++i
-    }
+        else
+            if (fixedPoints.size == 2) {
+                if (maxCircle.contains(unusedFixedPoints[0])) { //если неиспользованная точка не выходит за пределы окружности, заменить её опорной, что самая дальняя от "новой"
+                    fixedPoints.removeAt(unusedFixedPointsIndexes[0]) //(индекс неиспользованной пригодился)
+                    fixedPoints.add(theFarthestFromTheNewOne)
+                }
+                else { //иначе построить окружность по "новой" и двум опорным точкам
+                    fixedPoints.add(theFarthestFromTheNewOne)
+                    maxCircle = circleByThreePoints(fixedPoints[0], fixedPoints[1], theFarthestNewOne)
+                    if (maxCircle.radius <= storedRadius) break else storedRadius = maxCircle.radius
+                    // если радиус не изменился, завершить цикл
+                }
 
-    var farPoint = points[0]
-    var biggestDistance = farPoint.distance(maxCircle.center)
-    for (j in 1 until points.size) {
-        val currentDistance = points[j].distance(maxCircle.center)
-        if (currentDistance > biggestDistance) {
-            biggestDistance = currentDistance
-            farPoint = points[j]
-        }
+            }
     }
-    return circleByThreePoints(d.begin, d.end, farPoint)*/
-    }
+    return maxCircle
 }
