@@ -340,7 +340,8 @@ for (i in 2 until grahamScannedPoints.size) {
 }
 return Circle(diameter(MCH), )*/
 
-fun minContainingCircle(vararg points: Point): Circle {
+fun minContainingCircle(vararg points: Point): Circle = TODO()
+/*{
     val d = diameter(*points)
     if ((d.begin.x == d.end.x) && (d.begin.y == d.end.y)) return circleByDiameter(Segment(points[0], points[1]))
     var maxCircle = circleByDiameter(d) //стартовая окружность
@@ -384,4 +385,4 @@ fun minContainingCircle(vararg points: Point): Circle {
             }
     }
     return maxCircle
-}
+}*/

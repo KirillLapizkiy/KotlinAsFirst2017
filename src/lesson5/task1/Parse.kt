@@ -416,8 +416,8 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
             command == '[' -> ++braceBalance
             command == ']' -> --braceBalance
             command !in allowedCommandsAndSymbols -> throw IllegalArgumentException()
-
         }
+        if (braceBalance < 0) throw IllegalArgumentException()
     }
     if (braceBalance != 0) throw IllegalArgumentException()
     fun bodyCycleSizeFun(k: Int): Int {         // узнать размер текущего цикла
